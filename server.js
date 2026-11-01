@@ -49,16 +49,8 @@ const upload = multer({
   }
 });
 
-const clipUpload = multer({
-  dest: uploadDir,
-  limits: {
-    fileSize: 500 * 1024 * 1024,
-    files: 1
-  }
-});
-
-const loginStates = new Map();
 const sessions = new Map();
+const loginStates = new Map();
 const clipJobs = new Map();
 
 function graphUrl(endpoint) {
@@ -67,10 +59,7 @@ function graphUrl(endpoint) {
 
 function getSession(req, res, next) {
   const auth = req.headers.authorization || "";
-  const token = auth.startsWith("Bearer ")
-    ? auth.slice(7)
-    : "";
-
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
   const session = sessions.get(token);
 
   if (!session) {
@@ -86,11 +75,9 @@ function getSession(req, res, next) {
 
 async function graphError(response) {
   const data = await response.json().catch(() => ({}));
-
   const error = new Error(
     data?.error?.message || `Meta API error (${response.status})`
   );
-
   error.status = response.status;
   throw error;
 }
@@ -98,7 +85,7 @@ async function graphError(response) {
 function runFFmpeg(args) {
   return new Promise((resolve, reject) => {
     if (!ffmpegPath) {
-      return reject(new Error("FFmpeg is not available on this server."));
+      return reject(new Error("FFmpeg is not available."));
     }
 
     const child = spawn(ffmpegPath, args);
@@ -125,7 +112,7 @@ function runFFmpeg(args) {
   });
 }
 
-// Basic status
+// Backend status
 app.get("/", (req, res) => {
   res.json({
     app: "AZIM AUTOMATION",
@@ -141,7 +128,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Countries
+// Country list
 app.get("/api/countries", (req, res) => {
   const countries = Country.getAllCountries()
     .map(country => ({
@@ -150,16 +137,12 @@ app.get("/api/countries", (req, res) => {
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  res.json({
-    success: true,
-    countries
-  });
+  res.json({ success: true, countries });
 });
 
-// Country regions
+// Region list
 app.get("/api/regions/:countryCode", (req, res) => {
   const code = String(req.params.countryCode || "").toUpperCase();
-
   const country = Country.getCountryByCode(code);
 
   if (!country) {
@@ -186,130 +169,114 @@ app.get("/api/regions/:countryCode", (req, res) => {
   });
 });
 
-// Video clip editor: maximum 30 clips, each up to 30 seconds.
-app.post(
-  "/api/clips/split",
-  clipUpload.single("video"),
-  async (req, res) => {
-    const file = req.file;
+// Split video into 30-second clips, maximum 30 clips
+app.post("/api/clips/split", upload.single("video"), async (req, res) => {
+  const file = req.file;
 
-    if (!file) {
-      return res.status(400).json({
-        success: false,
-        message: "ভিডিও নির্বাচন করুন।"
-      });
-    }
-
-    const jobId = crypto.randomBytes(16).toString("hex");
-    const jobFolder = path.join(clipDir, jobId);
-
-    try {
-      fs.mkdirSync(jobFolder, { recursive: true });
-
-      const probeText = await runFFmpeg([
-        "-i", file.path,
-        "-t", "0.1",
-        "-f", "null",
-        "-"
-      ]).catch(async error => {
-        // FFmpeg writes video metadata to stderr; a probe may exit non-zero.
-        if (error.message) throw error;
-      });
-
-      // Read duration from FFmpeg metadata.
-      const probe = spawn(ffmpegPath, ["-i", file.path]);
-
-      let metadata = "";
-
-      probe.stderr.on("data", data => {
-        metadata += data.toString();
-      });
-
-      await new Promise(resolve => {
-        probe.on("close", resolve);
-        probe.on("error", resolve);
-      });
-
-      const match = metadata.match(
-        /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/
-      );
-
-      if (!match) {
-        throw new Error("ভিডিওর দৈর্ঘ্য নির্ধারণ করা যায়নি।");
-      }
-
-      const duration =
-        Number(match[1]) * 3600 +
-        Number(match[2]) * 60 +
-        Number(match[3]);
-
-      if (!Number.isFinite(duration) || duration <= 0) {
-        throw new Error("ভিডিওটি সঠিক নয়।");
-      }
-
-      const count = Math.min(30, Math.ceil(duration / 30));
-      const clips = [];
-
-      for (let i = 0; i < count; i++) {
-        const start = i * 30;
-        const length = Math.min(30, duration - start);
-
-        const filename =
-          `clip-${String(i + 1).padStart(2, "0")}.mp4`;
-
-        const output = path.join(jobFolder, filename);
-
-        await runFFmpeg([
-          "-ss", String(start),
-          "-i", file.path,
-          "-t", String(length),
-          "-c:v", "libx264",
-          "-preset", "veryfast",
-          "-crf", "23",
-          "-c:a", "aac",
-          "-movflags", "+faststart",
-          "-y", output
-        ]);
-
-        clips.push({
-          number: i + 1,
-          seconds: Math.round(length * 100) / 100,
-          filename
-        });
-      }
-
-      clipJobs.set(jobId, {
-        folder: jobFolder,
-        clips,
-        createdAt: Date.now()
-      });
-
-      res.json({
-        success: true,
-        jobId,
-        clips,
-        totalClips: clips.length,
-        truncated: duration > 900
-      });
-
-    } catch (error) {
-      await fs.promises.rm(jobFolder, {
-        recursive: true,
-        force: true
-      }).catch(() => {});
-
-      res.status(500).json({
-        success: false,
-        message: error.message || "ক্লিপ তৈরি করা যায়নি।"
-      });
-
-    } finally {
-      await fs.promises.unlink(file.path).catch(() => {});
-    }
+  if (!file) {
+    return res.status(400).json({
+      success: false,
+      message: "ভিডিও নির্বাচন করুন।"
+    });
   }
-);
 
-// Download an individual clip
+  const jobId = crypto.randomBytes(16).toString("hex");
+  const jobFolder = path.join(clipDir, jobId);
+
+  try {
+    fs.mkdirSync(jobFolder, { recursive: true });
+
+    const probe = spawn(ffmpegPath, ["-i", file.path]);
+    let metadata = "";
+
+    probe.stderr.on("data", data => {
+      metadata += data.toString();
+    });
+
+    await new Promise((resolve, reject) => {
+      probe.on("close", resolve);
+      probe.on("error", reject);
+    });
+
+    const match = metadata.match(
+      /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/
+    );
+
+    if (!match) {
+      throw new Error("ভিডিওর দৈর্ঘ্য নির্ধারণ করা যায়নি।");
+    }
+
+    const duration =
+      Number(match[1]) * 3600 +
+      Number(match[2]) * 60 +
+      Number(match[3]);
+
+    if (!Number.isFinite(duration) || duration <= 0) {
+      throw new Error("ভিডিওটি সঠিক নয়।");
+    }
+
+    const count = Math.min(30, Math.ceil(duration / 30));
+    const clips = [];
+
+    for (let i = 0; i < count; i++) {
+      const start = i * 30;
+      const length = Math.min(30, duration - start);
+
+      const filename =
+        `clip-${String(i + 1).padStart(2, "0")}.mp4`;
+
+      const output = path.join(jobFolder, filename);
+
+      await runFFmpeg([
+        "-ss", String(start),
+        "-i", file.path,
+        "-t", String(length),
+        "-c:v", "libx264",
+        "-preset", "veryfast",
+        "-crf", "23",
+        "-c:a", "aac",
+        "-movflags", "+faststart",
+        "-y", output
+      ]);
+
+      clips.push({
+        number: i + 1,
+        seconds: Math.round(length * 100) / 100,
+        filename
+      });
+    }
+
+    clipJobs.set(jobId, {
+      folder: jobFolder,
+      clips,
+      createdAt: Date.now()
+    });
+
+    res.json({
+      success: true,
+      jobId,
+      clips,
+      totalClips: clips.length,
+      truncated: duration > 900
+    });
+
+  } catch (error) {
+    await fs.promises.rm(jobFolder, {
+      recursive: true,
+      force: true
+    }).catch(() => {});
+
+    res.status(500).json({
+      success: false,
+      message: error.message || "ক্লিপ তৈরি করা যায়নি।"
+    });
+
+  } finally {
+    await fs.promises.unlink(file.path).catch(() => {});
+  }
+});
+
+// Download a clip
 app.get("/api/clips/:jobId/:filename", (req, res) => {
   const job = clipJobs.get(req.params.jobId);
   const filename = req.params.filename;
@@ -334,7 +301,6 @@ app.get("/auth/facebook", (req, res) => {
   }
 
   const state = crypto.randomBytes(24).toString("hex");
-
   loginStates.set(state, Date.now());
 
   const params = new URLSearchParams({
@@ -394,17 +360,9 @@ app.get("/auth/facebook/callback", async (req, res) => {
     const tokenData = await tokenResponse.json();
 
     const pagesUrl = new URL(graphUrl("me/accounts"));
-
-    pagesUrl.searchParams.set(
-      "fields",
-      "id,name,access_token,tasks"
-    );
-
+    pagesUrl.searchParams.set("fields", "id,name,access_token,tasks");
     pagesUrl.searchParams.set("limit", "100");
-    pagesUrl.searchParams.set(
-      "access_token",
-      tokenData.access_token
-    );
+    pagesUrl.searchParams.set("access_token", tokenData.access_token);
 
     const pagesResponse = await fetch(pagesUrl);
 
@@ -432,17 +390,15 @@ app.get("/auth/facebook/callback", async (req, res) => {
 
   } catch (error) {
     console.error("Facebook callback:", error.message);
-
     res.status(400).send(
       `Facebook connection failed: ${error.message}`
     );
   }
 });
 
-// Redeem login session
+// Redeem login ticket
 app.post("/api/session/redeem", (req, res) => {
   const ticket = String(req.body?.ticket || "");
-
   const session = sessions.get(ticket);
 
   if (!session) {
@@ -458,7 +414,7 @@ app.post("/api/session/redeem", (req, res) => {
   });
 });
 
-// Connected pages
+// Connected Pages
 app.get("/api/pages", getSession, (req, res) => {
   res.json({
     success: true,
@@ -470,7 +426,7 @@ app.get("/api/pages", getSession, (req, res) => {
   });
 });
 
-// Publish video to selected Facebook Pages
+// Publish video to Pages
 app.post(
   "/api/publish",
   getSession,
@@ -646,21 +602,9 @@ app.post(
               graphUrl(`${page.id}/video_reels`)
             );
 
-            finishUrl.searchParams.set(
-              "video_id",
-              start.video_id
-            );
-
-            finishUrl.searchParams.set(
-              "upload_phase",
-              "finish"
-            );
-
-            finishUrl.searchParams.set(
-              "video_state",
-              "PUBLISHED"
-            );
-
+            finishUrl.searchParams.set("video_id", start.video_id);
+            finishUrl.searchParams.set("upload_phase", "finish");
+            finishUrl.searchParams.set("video_state", "PUBLISHED");
             finishUrl.searchParams.set(
               "access_token",
               page.access_token
