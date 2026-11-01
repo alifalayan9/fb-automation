@@ -5,422 +5,712 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AZIM AUTOMATION</title>
-
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#eef2f8;color:#202536}
-header{background:#fff;padding:18px 20px;color:#1877f2;font-size:23px;font-weight:bold}
-main{max-width:950px;margin:auto;padding:15px}
-.card{background:#fff;padding:17px;border-radius:14px;margin:13px 0;box-shadow:0 3px 12px #0001}
-button{border:0;border-radius:9px;padding:12px 16px;background:#1877f2;color:white;font-weight:bold;cursor:pointer;margin:4px 3px 4px 0}
-button.secondary{background:#e8f1ff;color:#174b91}
-button:disabled{opacity:.5}
-input,textarea,select{width:100%;padding:12px;margin:7px 0 12px;border:1px solid #ccd5e2;border-radius:9px;font:inherit}
-textarea{min-height:85px}
-.status{padding:12px;background:#fff7df;border-radius:9px;white-space:pre-wrap}
-.page,.region{padding:10px;border:1px solid #e1e5ec;border-radius:9px;margin:7px 0}
-.page label,.region label{display:flex;align-items:center;gap:10px}
-.page input,.region input{width:auto;margin:0}
-.small{font-size:13px;color:#687386;line-height:1.5}
-.result{padding:10px;border-bottom:1px solid #eee}
-.columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.selected{background:#eaf3ff;border-radius:8px;padding:10px;margin:8px 0}
-@media(max-width:600px){main{padding:10px}.columns{grid-template-columns:1fr}}
+:root {
+  --bg:#f3f6fb;
+  --card:#fff;
+  --primary:#1769e0;
+  --dark:#17243a;
+  --muted:#68778c;
+  --border:#e1e7f0;
+  --green:#138653;
+  --red:#d73535;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--dark);
+  font-family:Arial,"Noto Sans Bengali",sans-serif;
+}
+header {
+  background:#142b50;
+  color:white;
+  padding:20px;
+}
+header h1 { margin:0; font-size:23px; }
+header p { margin:7px 0 0; color:#c9d8f1; }
+main {
+  width:min(950px,94%);
+  margin:20px auto 50px;
+}
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 3px 12px #182b4b0a;
+}
+h2 { font-size:18px; margin:0 0 14px; }
+label {
+  display:block;
+  font-weight:600;
+  margin:12px 0 6px;
+  font-size:14px;
+}
+input,select,textarea {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+  font-size:15px;
+  color:var(--dark);
+}
+textarea { min-height:85px; resize:vertical; }
+button {
+  border:0;
+  padding:11px 15px;
+  border-radius:9px;
+  background:var(--primary);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  margin:5px 4px 5px 0;
+}
+button:disabled { opacity:.5; cursor:not-allowed; }
+button.secondary { background:#eaf1fc; color:#174b91; }
+button.green { background:var(--green); }
+button.red { background:var(--red); }
+button.gray { background:#66758b; }
+.row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  align-items:center;
+}
+.row > * { flex:1; min-width:130px; }
+.page-list {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:8px;
+  margin-top:12px;
+}
+.page-item,.saved-item,.clip-item {
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:11px;
+  background:#fff;
+}
+.page-item label {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin:0;
+}
+.page-item input,.saved-item input {
+  width:auto;
+}
+.muted { color:var(--muted); font-size:13px; }
+.status {
+  padding:11px;
+  border-radius:9px;
+  background:#eef3fa;
+  margin-top:12px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.status.ok { background:#e6f7ee; color:#12643e; }
+.status.error { background:#fff0f0; color:#a82020; }
+.saved-list,.clip-list {
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+.hidden { display:none !important; }
+.pill {
+  display:inline-block;
+  background:#eaf1fc;
+  color:#174b91;
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:12px;
+}
+footer {
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:20px;
+}
+@media(max-width:520px) {
+  .card { padding:14px; }
+  header h1 { font-size:20px; }
+  button { padding:10px 12px; }
+}
 </style>
 </head>
-
 <body>
-<header>AZIM AUTOMATION</header>
+
+<header>
+  <h1>AZIM AUTOMATION</h1>
+  <p>Facebook Page Video Publisher ও Clip Editor</p>
+</header>
+
 <main>
-<h2>Multi-Page Video Publisher</h2>
 
-<div class="card">
-<h3>Facebook Connection</h3>
-<p id="status" class="status">Backend connection checking...</p>
-<button onclick="connectFacebook()">Connect Facebook</button>
-<button class="secondary" onclick="syncPages()">Sync Pages</button>
-</div>
+  <section class="card">
+    <h2>১. Facebook সংযোগ</h2>
+    <p class="muted">তোমার Facebook account সংযুক্ত করে Page তালিকা আনো।</p>
+    <button id="connectBtn" onclick="connectFacebook()">Facebook Connect</button>
+    <button class="secondary" onclick="loadPages()">Page তালিকা রিফ্রেশ</button>
+    <div id="connectionStatus" class="status">এখনো Facebook সংযোগ করা হয়নি।</div>
+  </section>
 
-<div class="card">
-<h3>1. Select Facebook Pages</h3>
-<button class="secondary" onclick="selectAll(true)">Select All</button>
-<button class="secondary" onclick="selectAll(false)">Clear</button>
-<div id="pages">Connect Facebook, then Sync Pages.</div>
-<p id="pageCount" class="small">0 Pages selected</p>
-</div>
+  <section class="card">
+    <h2>২. Page নির্বাচন</h2>
+    <div class="row">
+      <button class="secondary" onclick="selectAllPages(true)">সব Page নির্বাচন</button>
+      <button class="secondary" onclick="selectAllPages(false)">সব বাদ</button>
+    </div>
+    <div id="pageList" class="page-list">
+      <p class="muted">প্রথমে Facebook Connect করো।</p>
+    </div>
+    <div id="pageCount" class="muted">নির্বাচিত Page: ০</div>
+  </section>
 
-<div class="card">
-<h3>2. Video Details</h3>
-<label>Video File</label>
-<input id="videoFile" type="file" accept="video/*">
+  <section class="card">
+    <h2>৩. Geo Audience তালিকা</h2>
+    <p class="muted">
+      দেশ ও অঞ্চল বেছে নিজের সংরক্ষিত তালিকা তৈরি করো।
+      এই তালিকা এই ব্রাউজারে সংরক্ষিত থাকবে। এটি এখনো Facebook-এর বাস্তব Audience Blocking নয়।
+    </p>
 
-<label>Publish Type</label>
-<select id="type">
-<option value="video">Normal Page Video</option>
-<option value="reel">Facebook Reel</option>
-</select>
+    <label>দেশ নির্বাচন</label>
+    <select id="countrySelect">
+      <option value="">দেশ লোড হচ্ছে...</option>
+    </select>
 
-<label>Video Title</label>
-<input id="title" maxlength="255" placeholder="Write video title">
+    <label>State / Province / Division নির্বাচন</label>
+    <select id="regionSelect">
+      <option value="">আগে দেশ নির্বাচন করো</option>
+    </select>
 
-<label>Description / Caption</label>
-<textarea id="description" placeholder="Write video description or caption"></textarea>
+    <button onclick="addGeo()">＋ তালিকায় যোগ</button>
+    <button class="green" onclick="saveGeo()">Geo তালিকা সেভ</button>
 
-<label>Schedule (Optional)</label>
-<input id="schedule" type="datetime-local">
-<p class="small">Schedule empty রাখলে এখনই publish হবে।</p>
-</div>
+    <div id="geoSaved" class="saved-list"></div>
+    <div id="geoStatus" class="status">এখনো কোনো Geo তালিকা যোগ করা হয়নি।</div>
+  </section>
 
-<div class="card">
-<h3>3. Country and Division Selection</h3>
-<p class="small">প্রথমে Country নির্বাচন করো। তারপর সেই দেশের উপলব্ধ State, Division বা Province নির্বাচন করতে পারবে।</p>
+  <section class="card">
+    <h2>৪. ভিডিও প্রকাশ</h2>
 
-<label>Country নির্বাচন</label>
-<input id="countrySearch" placeholder="Search country..." oninput="filterCountries()">
-<select id="countrySelect" size="6" multiple></select>
+    <label>ভিডিও নির্বাচন</label>
+    <input type="file" id="videoFile" accept="video/*">
 
-<div class="selected">
-<strong>Selected Countries:</strong>
-<div id="selectedCountries">None</div>
-</div>
+    <label>ভিডিওর নাম / Title</label>
+    <input id="videoTitle" type="text" placeholder="ভিডিওর নাম লিখো">
 
-<button class="secondary" onclick="clearCountries()">Clear Countries</button>
+    <label>Caption / Description</label>
+    <textarea id="videoDescription" placeholder="ভিডিওর বিবরণ লিখো"></textarea>
 
-<hr>
+    <label>প্রকাশের ধরন</label>
+    <select id="publishType">
+      <option value="video">Normal Video</option>
+      <option value="reel">Facebook Reel</option>
+    </select>
 
-<label>Division / State / Province</label>
-<select id="regionCountry">
-<option value="">Select a country first</option>
-</select>
+    <label>Schedule (ঐচ্ছিক)</label>
+    <input id="scheduleAt" type="datetime-local">
+    <p class="muted">এই সংস্করণে Schedule শুধু Normal Video-এর জন্য। Reel তাৎক্ষণিক প্রকাশ হবে।</p>
 
-<input id="regionSearch" placeholder="Search division or state..." oninput="filterRegions()">
+    <div class="row">
+      <button class="green" id="startBtn" onclick="publishVideos()">START — প্রকাশ করো</button>
+      <button class="red" onclick="stopPublishing()">STOP</button>
+    </div>
 
-<div id="regions">Select a country to load regions.</div>
+    <div id="publishStatus" class="status">প্রকাশের জন্য প্রস্তুত।</div>
+  </section>
 
-<div class="selected">
-<strong>Selected Regions:</strong>
-<div id="selectedRegions">None</div>
-</div>
+  <section class="card">
+    <h2>৫. Video Clip Editor</h2>
+    <p class="muted">একটি ভিডিও থেকে সর্বোচ্চ ৩০টি আলাদা ক্লিপ তৈরি হবে। প্রতিটি ক্লিপ সর্বোচ্চ ৩০ সেকেন্ড।</p>
 
-<button class="secondary" onclick="clearRegions()">Clear Regions</button>
+    <label>ভিডিওর নাম</label>
+    <input id="clipTitle" placeholder="ক্লিপের নাম লিখো">
 
-<p class="small">
-এই সংস্করণে Country ও Region তালিকা এবং নির্বাচন সংরক্ষণের UI তৈরি করা হয়েছে। এগুলো এখনো Facebook Audience-এ প্রয়োগ হচ্ছে না। Meta-র সমর্থিত Region ID এবং API যাচাই ছাড়া কোনো এলাকা ব্লক হয়েছে বলে দেখানো হবে না।
-</p>
-</div>
+    <label>ভিডিও নির্বাচন</label>
+    <input type="file" id="clipFile" accept="video/*">
 
-<div class="card">
-<h3>4. Publish Video</h3>
-<button id="publishBtn" onclick="publishVideos()">Publish to Selected Pages</button>
-<p class="small">Keep this page open while uploading. Maximum upload size: 500 MB.</p>
-</div>
+    <button class="green" id="splitBtn" onclick="splitVideo()">৩০ সেকেন্ডের ক্লিপ তৈরি</button>
+    <div id="clipStatus" class="status">এখনো কোনো ক্লিপ তৈরি হয়নি।</div>
+    <div id="clipList" class="clip-list"></div>
+  </section>
 
-<div class="card">
-<h3>Publishing Report</h3>
-<div id="report">No publishing attempt yet.</div>
-</div>
 </main>
 
+<footer>AZIM AUTOMATION · Version 4.0</footer>
+
 <script>
-const API="https://azim-automation-api.onrender.com";
-let sessionToken=sessionStorage.getItem("azimSession")||"";
-let pageData=[];
-let countries=[];
-let regions=[];
-let selectedCountryCodes=new Set();
-let selectedRegionKeys=new Set();
+const API = "https://azim-automation-api.onrender.com";
 
-const statusEl=document.getElementById("status");
+let sessionToken = localStorage.getItem("azim_session") || "";
+let pages = [];
+let selectedPages = new Set();
+let savedGeo = JSON.parse(localStorage.getItem("azim_geo") || "[]");
+let stopRequested = false;
+let isPublishing = false;
+let activeJob = null;
 
-function setStatus(message){statusEl.textContent=message;}
+const $ = id => document.getElementById(id);
 
-async function api(path,options={}){
-  options.headers={
-    ...(options.headers||{}),
-    ...(sessionToken?{Authorization:"Bearer "+sessionToken}:{})
-  };
-  return fetch(API+path,options);
+function showStatus(id, message, type = "") {
+  const el = $(id);
+  el.textContent = message;
+  el.className = "status " + type;
 }
 
-async function checkBackend(){
-  try{
-    const response=await fetch(API+"/api/health");
-    const data=await response.json();
-    setStatus(data.success?
-      "Backend connected. "+(sessionToken?"Facebook session saved.":"Connect Facebook to continue.")
-      :"Backend error.");
-  }catch(error){
-    setStatus("Backend connection failed.");
+async function apiFetch(path, options = {}) {
+  const headers = { ...(options.headers || {}) };
+
+  if (sessionToken) {
+    headers.Authorization = "Bearer " + sessionToken;
   }
-}
 
-function connectFacebook(){
-  location.href=API+"/auth/facebook";
-}
-
-async function redeemTicket(){
-  const match=location.hash.match(/connected=([a-f0-9]+)/i);
-  if(!match)return;
-  const ticket=match[1];
-  history.replaceState(null,"",location.pathname+location.search);
-  try{
-    const response=await fetch(API+"/api/session/redeem",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ticket})
-    });
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.message);
-    sessionToken=data.sessionToken;
-    sessionStorage.setItem("azimSession",sessionToken);
-    setStatus("Facebook connected. Now tap Sync Pages.");
-  }catch(error){
-    setStatus("Facebook session error: "+error.message);
-  }
-}
-
-function selectedIds(){
-  return [...document.querySelectorAll(".pageCheck:checked")].map(x=>x.value);
-}
-
-function updateCount(){
-  document.getElementById("pageCount").textContent=selectedIds().length+" Pages selected";
-}
-
-function selectAll(value){
-  document.querySelectorAll(".pageCheck").forEach(x=>x.checked=value);
-  updateCount();
-}
-
-async function syncPages(){
-  if(!sessionToken){
-    setStatus("Facebook not connected. Tap Connect Facebook first.");
-    return;
-  }
-  setStatus("Loading Pages...");
-  try{
-    const response=await api("/api/pages");
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.message);
-    pageData=data.pages||[];
-    const box=document.getElementById("pages");
-    box.replaceChildren();
-    if(!pageData.length){box.textContent="No Pages found.";return;}
-    pageData.forEach(page=>{
-      const div=document.createElement("div");
-      div.className="page";
-      const label=document.createElement("label");
-      const checkbox=document.createElement("input");
-      checkbox.type="checkbox";
-      checkbox.className="pageCheck";
-      checkbox.value=page.id;
-      checkbox.addEventListener("change",updateCount);
-      const name=document.createElement("span");
-      name.textContent=page.name+" — "+page.id;
-      label.append(checkbox,name);
-      div.append(label);
-      box.append(div);
-    });
-    setStatus("Page Sync successful: "+pageData.length+" Pages found.");
-    updateCount();
-  }catch(error){
-    setStatus("Page Sync failed: "+error.message);
-  }
-}
-
-// LOAD COUNTRIES
-async function loadCountries(){
-  try{
-    const response=await fetch(API+"/api/countries");
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.message);
-    countries=data.countries||[];
-    renderCountries();
-  }catch(error){
-    document.getElementById("countrySelect").innerHTML="";
-    setStatus("Country list error: "+error.message);
-  }
-}
-
-function renderCountries(){
-  const search=document.getElementById("countrySearch").value.toLowerCase();
-  const select=document.getElementById("countrySelect");
-  select.replaceChildren();
-  countries.filter(c=>c.name.toLowerCase().includes(search)).forEach(c=>{
-    const option=document.createElement("option");
-    option.value=c.isoCode;
-    option.textContent=c.name;
-    option.selected=selectedCountryCodes.has(c.isoCode);
-    select.append(option);
+  const response = await fetch(API + path, {
+    ...options,
+    headers
   });
-}
 
-function filterCountries(){renderCountries();}
+  const data = await response.json().catch(() => ({}));
 
-document.getElementById("countrySelect").addEventListener("change",async function(){
-  [...this.selectedOptions].forEach(o=>selectedCountryCodes.add(o.value));
-  renderCountries();
-  renderSelectedCountries();
-  await renderRegionCountryOptions();
-});
-
-function renderSelectedCountries(){
-  const names=countries.filter(c=>selectedCountryCodes.has(c.isoCode)).map(c=>c.name);
-  document.getElementById("selectedCountries").textContent=names.join(", ")||"None";
-}
-
-function clearCountries(){
-  selectedCountryCodes.clear();
-  selectedRegionKeys.clear();
-  renderCountries();
-  renderSelectedCountries();
-  renderSelectedRegions();
-  renderRegionCountryOptions();
-  document.getElementById("regions").textContent="Select a country to load regions.";
-}
-
-async function renderRegionCountryOptions(){
-  const select=document.getElementById("regionCountry");
-  select.replaceChildren();
-  const chosen=countries.filter(c=>selectedCountryCodes.has(c.isoCode));
-  if(!chosen.length){
-    const option=document.createElement("option");
-    option.value="";
-    option.textContent="Select a country first";
-    select.append(option);
-    return;
+  if (!response.ok) {
+    throw new Error(data.message || "Server error");
   }
-  chosen.forEach(c=>{
-    const option=document.createElement("option");
-    option.value=c.isoCode;
-    option.textContent=c.name;
-    select.append(option);
-  });
-  await loadRegions(select.value);
+
+  return data;
 }
 
-document.getElementById("regionCountry").addEventListener("change",function(){
-  loadRegions(this.value);
-});
+// Facebook login callback
+async function redeemLoginTicket() {
+  const ticket = location.hash.startsWith("#connected=")
+    ? location.hash.slice("#connected=".length)
+    : "";
 
-async function loadRegions(code){
-  const box=document.getElementById("regions");
-  box.textContent="Loading regions...";
-  regions=[];
-  try{
-    const response=await fetch(API+"/api/regions/"+encodeURIComponent(code));
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.message);
-    regions=data.regions||[];
-    renderRegions();
-  }catch(error){
-    box.textContent="Region list error: "+error.message;
-  }
-}
+  if (!ticket) return;
 
-function renderRegions(){
-  const box=document.getElementById("regions");
-  const search=document.getElementById("regionSearch").value.toLowerCase();
-  box.replaceChildren();
-  const countryCode=document.getElementById("regionCountry").value;
-  const filtered=regions.filter(r=>r.name.toLowerCase().includes(search));
-  if(!filtered.length){
-    box.textContent="No regions found for this country.";
-    return;
-  }
-  filtered.forEach(region=>{
-    const key=countryCode+":"+region.code;
-    const div=document.createElement("div");
-    div.className="region";
-    const label=document.createElement("label");
-    const checkbox=document.createElement("input");
-    checkbox.type="checkbox";
-    checkbox.checked=selectedRegionKeys.has(key);
-    checkbox.addEventListener("change",()=>{
-      if(checkbox.checked)selectedRegionKeys.add(key);
-      else selectedRegionKeys.delete(key);
-      renderSelectedRegions();
+  history.replaceState(null, "", location.pathname);
+
+  try {
+    const data = await fetch(API + "/api/session/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticket })
+    }).then(async r => {
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Login failed");
+      return j;
     });
-    const text=document.createElement("span");
-    text.textContent=region.name;
-    label.append(checkbox,text);
+
+    sessionToken = data.sessionToken;
+    localStorage.setItem("azim_session", sessionToken);
+
+    showStatus("connectionStatus", "Facebook সংযোগ সফল হয়েছে।", "ok");
+    await loadPages();
+  } catch (error) {
+    showStatus("connectionStatus", error.message, "error");
+  }
+}
+
+function connectFacebook() {
+  location.href = API + "/auth/facebook";
+}
+
+async function loadPages() {
+  if (!sessionToken) {
+    showStatus("connectionStatus", "প্রথমে Facebook Connect করো।", "error");
+    return;
+  }
+
+  try {
+    const data = await apiFetch("/api/pages");
+    pages = data.pages || [];
+
+    const validIds = new Set(pages.map(p => p.id));
+    selectedPages = new Set(
+      [...selectedPages].filter(id => validIds.has(id))
+    );
+
+    renderPages();
+
+    showStatus(
+      "connectionStatus",
+      "Facebook সংযুক্ত। মোট Page: " + pages.length,
+      "ok"
+    );
+  } catch (error) {
+    sessionToken = "";
+    localStorage.removeItem("azim_session");
+    showStatus("connectionStatus", error.message, "error");
+  }
+}
+
+function renderPages() {
+  const list = $("pageList");
+  list.innerHTML = "";
+
+  if (!pages.length) {
+    list.textContent = "কোনো Page পাওয়া যায়নি।";
+    return;
+  }
+
+  pages.forEach(page => {
+    const div = document.createElement("div");
+    div.className = "page-item";
+
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = selectedPages.has(page.id);
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) selectedPages.add(page.id);
+      else selectedPages.delete(page.id);
+      updatePageCount();
+    });
+
+    const name = document.createElement("span");
+    name.textContent = page.name;
+
+    label.append(checkbox, name);
     div.append(label);
+    list.append(div);
+  });
+
+  updatePageCount();
+}
+
+function updatePageCount() {
+  $("pageCount").textContent =
+    "নির্বাচিত Page: " + selectedPages.size;
+}
+
+function selectAllPages(value) {
+  selectedPages.clear();
+
+  if (value) {
+    pages.forEach(page => selectedPages.add(page.id));
+  }
+
+  renderPages();
+}
+
+// Country and region list
+async function loadCountries() {
+  try {
+    const data = await fetch(API + "/api/countries").then(r => r.json());
+    const select = $("countrySelect");
+
+    select.innerHTML = '<option value="">দেশ নির্বাচন করো</option>';
+
+    (data.countries || []).forEach(country => {
+      const option = document.createElement("option");
+      option.value = country.code;
+      option.textContent = country.name;
+      select.append(option);
+    });
+  } catch {
+    $("countrySelect").innerHTML =
+      '<option value="">দেশ লোড করা যায়নি</option>';
+  }
+}
+
+async function loadRegions() {
+  const code = $("countrySelect").value;
+  const select = $("regionSelect");
+
+  select.innerHTML = '<option value="">অঞ্চল নির্বাচন করো</option>';
+
+  if (!code) return;
+
+  try {
+    const data = await fetch(
+      API + "/api/regions/" + encodeURIComponent(code)
+    ).then(r => r.json());
+
+    (data.regions || []).forEach(region => {
+      const option = document.createElement("option");
+      option.value = region.code;
+      option.textContent = region.name;
+      select.append(option);
+    });
+
+    if (!(data.regions || []).length) {
+      select.innerHTML =
+        '<option value="">এই দেশে অঞ্চল পাওয়া যায়নি</option>';
+    }
+  } catch (error) {
+    select.innerHTML =
+      '<option value="">অঞ্চল লোড করা যায়নি</option>';
+  }
+}
+
+$("countrySelect").addEventListener("change", loadRegions);
+
+function renderGeo() {
+  const box = $("geoSaved");
+  box.innerHTML = "";
+
+  if (!savedGeo.length) {
+    box.textContent = "কোনো Geo তালিকা নেই।";
+    return;
+  }
+
+  savedGeo.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "saved-item";
+
+    const text = document.createElement("span");
+    text.textContent = item.country + " — " + item.region;
+
+    const remove = document.createElement("button");
+    remove.className = "red";
+    remove.textContent = "বাদ";
+    remove.onclick = () => {
+      savedGeo.splice(index, 1);
+      saveGeo();
+    };
+
+    div.append(text, remove);
     box.append(div);
   });
 }
 
-function filterRegions(){renderRegions();}
+function addGeo() {
+  const countrySelect = $("countrySelect");
+  const regionSelect = $("regionSelect");
 
-function renderSelectedRegions(){
-  const names=[];
-  selectedRegionKeys.forEach(key=>{
-    const [countryCode,regionCode]=key.split(":");
-    const country=countries.find(c=>c.isoCode===countryCode);
-    const region=regions.find(r=>r.code===regionCode);
-    if(country&&region)names.push(country.name+" — "+region.name);
-  });
-  document.getElementById("selectedRegions").textContent=names.join(", ")||"None";
+  const country = countrySelect.options[countrySelect.selectedIndex];
+  const region = regionSelect.options[regionSelect.selectedIndex];
+
+  if (!countrySelect.value || !regionSelect.value) {
+    showStatus("geoStatus", "দেশ ও অঞ্চল দুটোই নির্বাচন করো।", "error");
+    return;
+  }
+
+  const item = {
+    countryCode: countrySelect.value,
+    regionCode: regionSelect.value,
+    country: country.textContent,
+    region: region.textContent
+  };
+
+  if (!savedGeo.some(x =>
+    x.countryCode === item.countryCode &&
+    x.regionCode === item.regionCode
+  )) {
+    savedGeo.push(item);
+  }
+
+  renderGeo();
+  showStatus("geoStatus", "Geo তালিকায় যোগ হয়েছে। সেভ চাপো।", "ok");
 }
 
-function clearRegions(){
-  selectedRegionKeys.clear();
-  renderRegions();
-  renderSelectedRegions();
+function saveGeo() {
+  localStorage.setItem("azim_geo", JSON.stringify(savedGeo));
+  renderGeo();
+  showStatus(
+    "geoStatus",
+    "Geo তালিকা এই ব্রাউজারে সেভ হয়েছে।",
+    "ok"
+  );
 }
 
-async function publishVideos(){
-  const file=document.getElementById("videoFile").files[0];
-  const ids=selectedIds();
+// Publishing
+async function publishVideos() {
+  if (isPublishing) return;
 
-  if(!sessionToken){alert("Connect Facebook first.");return;}
-  if(!file){alert("Please select a video file.");return;}
-  if(!ids.length){alert("Select at least one Page.");return;}
+  if (!sessionToken) {
+    showStatus("publishStatus", "আগে Facebook Connect করো।", "error");
+    return;
+  }
 
-  const button=document.getElementById("publishBtn");
-  button.disabled=true;
-  button.textContent="Uploading...";
+  if (!selectedPages.size) {
+    showStatus("publishStatus", "অন্তত একটি Page নির্বাচন করো।", "error");
+    return;
+  }
 
-  const form=new FormData();
-  form.append("video",file);
-  form.append("pageIds",JSON.stringify(ids));
-  form.append("type",document.getElementById("type").value);
-  form.append("title",document.getElementById("title").value);
-  form.append("description",document.getElementById("description").value);
-  form.append("scheduleAt",document.getElementById("schedule").value);
+  const file = $("videoFile").files[0];
 
-  const report=document.getElementById("report");
-  report.textContent="Uploading to "+ids.length+" Pages. Please wait...";
+  if (!file) {
+    showStatus("publishStatus", "ভিডিও নির্বাচন করো।", "error");
+    return;
+  }
 
-  try{
-    const response=await api("/api/publish",{method:"POST",body:form});
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.message);
-    report.replaceChildren();
-    (data.results||[]).forEach(item=>{
-      const div=document.createElement("div");
-      div.className="result";
-      div.textContent=(item.success?"SUCCESS — ":"FAILED — ")+item.pageName+
-        (item.id?" (ID: "+item.id+")":"")+
-        (item.error?" — "+item.error:"");
-      report.append(div);
-    });
-    setStatus("Publishing attempt finished. Check the report.");
-  }catch(error){
-    report.textContent="Error: "+error.message;
-    setStatus("Publishing failed.");
-  }finally{
-    button.disabled=false;
-    button.textContent="Publish to Selected Pages";
+  const type = $("publishType").value;
+  const schedule = $("scheduleAt").value;
+
+  if (type === "reel" && schedule) {
+    showStatus(
+      "publishStatus",
+      "Reel-এর জন্য Schedule দেওয়া যাবে না।",
+      "error"
+    );
+    return;
+  }
+
+  isPublishing = true;
+  stopRequested = false;
+  $("startBtn").disabled = true;
+
+  const ids = [...selectedPages];
+  const results = [];
+
+  try {
+    for (const id of ids) {
+      if (stopRequested) break;
+
+      const form = new FormData();
+      form.append("video", file);
+      form.append("pageIds", JSON.stringify([id]));
+      form.append("type", type);
+      form.append("title", $("videoTitle").value);
+      form.append("description", $("videoDescription").value);
+
+      if (schedule) form.append("scheduleAt", schedule);
+
+      showStatus(
+        "publishStatus",
+        "প্রকাশের চেষ্টা চলছে... (" + (results.length + 1) + "/" + ids.length + ")"
+      );
+
+      try {
+        const data = await apiFetch("/api/publish", {
+          method: "POST",
+          body: form
+        });
+
+        results.push(...(data.results || []));
+      } catch (error) {
+        results.push({
+          pageId: id,
+          success: false,
+          error: error.message
+        });
+      }
+    }
+
+    const success = results.filter(x => x.success).length;
+    const failed = results.filter(x => !x.success).length;
+
+    showStatus(
+      "publishStatus",
+      "কাজ শেষ। সফল: " + success +
+      " | ব্যর্থ: " + failed +
+      (stopRequested ? " | STOP করা হয়েছে।" : ""),
+      failed ? "error" : "ok"
+    );
+
+    $("publishStatus").textContent += "\n\n" +
+      results.map(x =>
+        (x.pageName || x.pageId) + ": " +
+        (x.success ? "সফল" : "ব্যর্থ — " + x.error)
+      ).join("\n");
+
+  } finally {
+    isPublishing = false;
+    $("startBtn").disabled = false;
   }
 }
 
-async function start(){
-  await redeemTicket();
-  await checkBackend();
-  await loadCountries();
+function stopPublishing() {
+  if (!isPublishing) {
+    showStatus("publishStatus", "এখন কোনো প্রকাশের কাজ চলছে না।");
+    return;
+  }
+
+  stopRequested = true;
+
+  showStatus(
+    "publishStatus",
+    "STOP অনুরোধ দেওয়া হয়েছে। চলমান অনুরোধ শেষ হলে পরের Page বন্ধ হবে।"
+  );
 }
 
-start();
+// Clip editor
+async function splitVideo() {
+  const file = $("clipFile").files[0];
+
+  if (!file) {
+    showStatus("clipStatus", "ভিডিও নির্বাচন করো।", "error");
+    return;
+  }
+
+  $("splitBtn").disabled = true;
+  $("clipList").innerHTML = "";
+
+  const form = new FormData();
+  form.append("video", file);
+
+  try {
+    showStatus(
+      "clipStatus",
+      "ভিডিও প্রসেস হচ্ছে। সময় লাগতে পারে..."
+    );
+
+    const data = await apiFetch("/api/clips/split", {
+      method: "POST",
+      body: form
+    });
+
+    if (!data.success) throw new Error(data.message || "ক্লিপ তৈরি হয়নি।");
+
+    activeJob = data.jobId;
+
+    showStatus(
+      "clipStatus",
+      "মোট ক্লিপ তৈরি: " + data.totalClips +
+      (data.truncated
+        ? "\nসতর্কতা: ১৫ মিনিটের পরের অংশ নেওয়া হয়নি।"
+        : ""),
+      "ok"
+    );
+
+    const list = $("clipList");
+
+    data.clips.forEach(clip => {
+      const div = document.createElement("div");
+      div.className = "clip-item";
+
+      const name = document.createElement("strong");
+      name.textContent =
+        ($("clipTitle").value || "ভিডিও") +
+        " — Clip " + clip.number;
+
+      const duration = document.createElement("p");
+      duration.className = "muted";
+      duration.textContent = clip.seconds + " সেকেন্ড";
+
+      const download = document.createElement("a");
+      download.href =
+        API + "/api/clips/" +
+        encodeURIComponent(data.jobId) + "/" +
+        encodeURIComponent(clip.filename);
+      download.download = clip.filename;
+      download.textContent = "ক্লিপ ডাউনলোড";
+      download.style.color = "#1769e0";
+      download.style.fontWeight = "bold";
+
+      div.append(name, duration, download);
+      list.append(div);
+    });
+
+  } catch (error) {
+    showStatus("clipStatus", error.message, "error");
+  } finally {
+    $("splitBtn").disabled = false;
+  }
+}
+
+renderGeo();
+loadCountries();
+redeemLoginTicket();
+
+if (sessionToken) {
+  loadPages();
+}
 </script>
+
 </body>
 </html>
