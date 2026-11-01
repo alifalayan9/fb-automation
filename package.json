@@ -1,7 +1,7 @@
 
 {
   "name": "azim-automation-api",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "AZIM Automation Facebook Video and Reels Publisher",
   "main": "server.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "country-state-city": "^3.2.1"
   }
 }
