@@ -1,15 +1,15 @@
+
 {
   "name": "azim-automation-api",
-  "version": "1.0.0",
-  "description": "AZIM Automation Backend",
+  "version": "2.0.0",
+  "description": "AZIM Automation Facebook Video and Reels Publisher",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express-session": "^1.18.1"
+    "express": "^4.21.2",
+    "multer": "^2.0.2"
   }
 }
