@@ -7,649 +7,420 @@
 <title>AZIM AUTOMATION</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #eef2f8;
-  color: #202536;
-}
-
-header {
-  background: #ffffff;
-  padding: 18px 20px;
-  color: #1877f2;
-  font-size: 23px;
-  font-weight: bold;
-}
-
-main {
-  max-width: 950px;
-  margin: auto;
-  padding: 15px;
-}
-
-.card {
-  background: #ffffff;
-  padding: 17px;
-  border-radius: 14px;
-  margin: 13px 0;
-  box-shadow: 0 3px 12px #0001;
-}
-
-button {
-  border: 0;
-  border-radius: 9px;
-  padding: 13px 16px;
-  background: #1877f2;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 4px 3px 4px 0;
-}
-
-button.secondary {
-  background: #e8f1ff;
-  color: #174b91;
-}
-
-button:disabled {
-  opacity: 0.5;
-}
-
-input, textarea, select {
-  width: 100%;
-  padding: 12px;
-  margin: 7px 0 12px;
-  border: 1px solid #ccd5e2;
-  border-radius: 9px;
-  font: inherit;
-}
-
-textarea {
-  min-height: 85px;
-}
-
-.status {
-  padding: 12px;
-  background: #fff7df;
-  border-radius: 9px;
-  white-space: pre-wrap;
-}
-
-.page {
-  padding: 10px;
-  border: 1px solid #e1e5ec;
-  border-radius: 9px;
-  margin: 7px 0;
-}
-
-.page label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.page input {
-  width: auto;
-  margin: 0;
-}
-
-.small {
-  font-size: 13px;
-  color: #687386;
-  line-height: 1.5;
-}
-
-.result {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-@media (max-width: 600px) {
-  main {
-    padding: 10px;
-  }
-}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#eef2f8;color:#202536}
+header{background:#fff;padding:18px 20px;color:#1877f2;font-size:23px;font-weight:bold}
+main{max-width:950px;margin:auto;padding:15px}
+.card{background:#fff;padding:17px;border-radius:14px;margin:13px 0;box-shadow:0 3px 12px #0001}
+button{border:0;border-radius:9px;padding:12px 16px;background:#1877f2;color:white;font-weight:bold;cursor:pointer;margin:4px 3px 4px 0}
+button.secondary{background:#e8f1ff;color:#174b91}
+button:disabled{opacity:.5}
+input,textarea,select{width:100%;padding:12px;margin:7px 0 12px;border:1px solid #ccd5e2;border-radius:9px;font:inherit}
+textarea{min-height:85px}
+.status{padding:12px;background:#fff7df;border-radius:9px;white-space:pre-wrap}
+.page,.region{padding:10px;border:1px solid #e1e5ec;border-radius:9px;margin:7px 0}
+.page label,.region label{display:flex;align-items:center;gap:10px}
+.page input,.region input{width:auto;margin:0}
+.small{font-size:13px;color:#687386;line-height:1.5}
+.result{padding:10px;border-bottom:1px solid #eee}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.selected{background:#eaf3ff;border-radius:8px;padding:10px;margin:8px 0}
+@media(max-width:600px){main{padding:10px}.columns{grid-template-columns:1fr}}
 </style>
 </head>
 
 <body>
-
 <header>AZIM AUTOMATION</header>
-
 <main>
-
 <h2>Multi-Page Video Publisher</h2>
 
 <div class="card">
-
 <h3>Facebook Connection</h3>
-
-<p id="status" class="status">
-Backend connection checking...
-</p>
-
-<button onclick="connectFacebook()">
-Connect Facebook
-</button>
-
-<button class="secondary" onclick="syncPages()">
-Sync Pages
-</button>
-
+<p id="status" class="status">Backend connection checking...</p>
+<button onclick="connectFacebook()">Connect Facebook</button>
+<button class="secondary" onclick="syncPages()">Sync Pages</button>
 </div>
 
 <div class="card">
-
 <h3>1. Select Facebook Pages</h3>
-
-<button class="secondary" onclick="selectAll(true)">
-Select All
-</button>
-
-<button class="secondary" onclick="selectAll(false)">
-Clear
-</button>
-
-<div id="pages">
-Connect Facebook, then Sync Pages.
-</div>
-
-<p id="pageCount" class="small">
-0 Pages selected
-</p>
-
+<button class="secondary" onclick="selectAll(true)">Select All</button>
+<button class="secondary" onclick="selectAll(false)">Clear</button>
+<div id="pages">Connect Facebook, then Sync Pages.</div>
+<p id="pageCount" class="small">0 Pages selected</p>
 </div>
 
 <div class="card">
-
 <h3>2. Video Details</h3>
-
 <label>Video File</label>
-
-<input
-  id="videoFile"
-  type="file"
-  accept="video/*"
->
+<input id="videoFile" type="file" accept="video/*">
 
 <label>Publish Type</label>
-
 <select id="type">
-  <option value="video">Normal Page Video</option>
-  <option value="reel">Facebook Reel</option>
+<option value="video">Normal Page Video</option>
+<option value="reel">Facebook Reel</option>
 </select>
 
 <label>Video Title</label>
-
-<input
-  id="title"
-  maxlength="255"
-  placeholder="Write video title"
->
+<input id="title" maxlength="255" placeholder="Write video title">
 
 <label>Description / Caption</label>
-
-<textarea
-  id="description"
-  placeholder="Write video description or caption"
-></textarea>
+<textarea id="description" placeholder="Write video description or caption"></textarea>
 
 <label>Schedule (Optional)</label>
-
-<input
-  id="schedule"
-  type="datetime-local"
->
-
-<p class="small">
-Leave schedule empty to publish now.
-Scheduled time must be at least 10 minutes ahead.
-</p>
-
+<input id="schedule" type="datetime-local">
+<p class="small">Schedule empty রাখলে এখনই publish হবে।</p>
 </div>
 
 <div class="card">
+<h3>3. Country and Division Selection</h3>
+<p class="small">প্রথমে Country নির্বাচন করো। তারপর সেই দেশের উপলব্ধ State, Division বা Province নির্বাচন করতে পারবে।</p>
 
-<h3>3. Country and Region Block</h3>
+<label>Country নির্বাচন</label>
+<input id="countrySearch" placeholder="Search country..." oninput="filterCountries()">
+<select id="countrySelect" size="6" multiple></select>
 
-<label>Excluded Countries (ISO Codes)</label>
+<div class="selected">
+<strong>Selected Countries:</strong>
+<div id="selectedCountries">None</div>
+</div>
 
-<input
-  id="countries"
-  placeholder="Example: US,CA,GB"
->
+<button class="secondary" onclick="clearCountries()">Clear Countries</button>
 
-<label>Excluded Region IDs</label>
+<hr>
 
-<input
-  id="regions"
-  placeholder="Enter Meta region IDs"
->
+<label>Division / State / Province</label>
+<select id="regionCountry">
+<option value="">Select a country first</option>
+</select>
+
+<input id="regionSearch" placeholder="Search division or state..." oninput="filterRegions()">
+
+<div id="regions">Select a country to load regions.</div>
+
+<div class="selected">
+<strong>Selected Regions:</strong>
+<div id="selectedRegions">None</div>
+</div>
+
+<button class="secondary" onclick="clearRegions()">Clear Regions</button>
 
 <p class="small">
-Country and region restrictions depend on Meta API support.
-District names cannot be used directly; Meta-supported
-region IDs are required.
+এই সংস্করণে Country ও Region তালিকা এবং নির্বাচন সংরক্ষণের UI তৈরি করা হয়েছে। এগুলো এখনো Facebook Audience-এ প্রয়োগ হচ্ছে না। Meta-র সমর্থিত Region ID এবং API যাচাই ছাড়া কোনো এলাকা ব্লক হয়েছে বলে দেখানো হবে না।
 </p>
-
 </div>
 
 <div class="card">
-
 <h3>4. Publish Video</h3>
-
-<button
-  id="publishBtn"
-  onclick="publishVideos()"
->
-Publish to Selected Pages
-</button>
-
-<p class="small">
-Keep this page open while videos are uploading.
-Maximum upload size: 500 MB.
-</p>
-
+<button id="publishBtn" onclick="publishVideos()">Publish to Selected Pages</button>
+<p class="small">Keep this page open while uploading. Maximum upload size: 500 MB.</p>
 </div>
 
 <div class="card">
-
 <h3>Publishing Report</h3>
-
-<div id="report">
-No publishing attempt yet.
+<div id="report">No publishing attempt yet.</div>
 </div>
-
-</div>
-
 </main>
 
 <script>
+const API="https://azim-automation-api.onrender.com";
+let sessionToken=sessionStorage.getItem("azimSession")||"";
+let pageData=[];
+let countries=[];
+let regions=[];
+let selectedCountryCodes=new Set();
+let selectedRegionKeys=new Set();
 
-const API =
-"https://azim-automation-api.onrender.com";
+const statusEl=document.getElementById("status");
 
-let sessionToken =
-sessionStorage.getItem("azimSession") || "";
+function setStatus(message){statusEl.textContent=message;}
 
-let pageData = [];
-
-const statusEl =
-document.getElementById("status");
-
-function setStatus(message) {
-  statusEl.textContent = message;
-}
-
-async function api(path, options = {}) {
-
-  options.headers = {
-    ...(options.headers || {}),
-    ...(sessionToken
-      ? { Authorization: "Bearer " + sessionToken }
-      : {})
+async function api(path,options={}){
+  options.headers={
+    ...(options.headers||{}),
+    ...(sessionToken?{Authorization:"Bearer "+sessionToken}:{})
   };
-
-  return fetch(API + path, options);
+  return fetch(API+path,options);
 }
 
-async function checkBackend() {
-
-  try {
-
-    const response =
-      await fetch(API + "/api/health");
-
-    const data = await response.json();
-
-    setStatus(
-      data.success
-        ? "Backend connected. " +
-          (sessionToken
-            ? "Facebook session saved."
-            : "Connect Facebook to continue.")
-        : "Backend error."
-    );
-
-  } catch (error) {
-
+async function checkBackend(){
+  try{
+    const response=await fetch(API+"/api/health");
+    const data=await response.json();
+    setStatus(data.success?
+      "Backend connected. "+(sessionToken?"Facebook session saved.":"Connect Facebook to continue.")
+      :"Backend error.");
+  }catch(error){
     setStatus("Backend connection failed.");
-
   }
 }
 
-function connectFacebook() {
-
-  location.href = API + "/auth/facebook";
-
+function connectFacebook(){
+  location.href=API+"/auth/facebook";
 }
 
-async function redeemTicket() {
-
-  const match =
-    location.hash.match(/connected=([a-f0-9]+)/i);
-
-  if (!match) return;
-
-  const ticket = match[1];
-
-  history.replaceState(
-    null,
-    "",
-    location.pathname + location.search
-  );
-
-  try {
-
-    const response = await fetch(
-      API + "/api/session/redeem",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ ticket })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message);
-    }
-
-    sessionToken = data.sessionToken;
-
-    sessionStorage.setItem(
-      "azimSession",
-      sessionToken
-    );
-
-    setStatus(
-      "Facebook connected. Now tap Sync Pages."
-    );
-
-  } catch (error) {
-
-    setStatus(
-      "Facebook session error: " + error.message
-    );
-
-  }
-}
-
-function selectedIds() {
-
-  return [
-    ...document.querySelectorAll(
-      ".pageCheck:checked"
-    )
-  ].map(item => item.value);
-
-}
-
-function updateCount() {
-
-  document.getElementById("pageCount").textContent =
-    selectedIds().length + " Pages selected";
-
-}
-
-function selectAll(value) {
-
-  document
-    .querySelectorAll(".pageCheck")
-    .forEach(item => {
-      item.checked = value;
+async function redeemTicket(){
+  const match=location.hash.match(/connected=([a-f0-9]+)/i);
+  if(!match)return;
+  const ticket=match[1];
+  history.replaceState(null,"",location.pathname+location.search);
+  try{
+    const response=await fetch(API+"/api/session/redeem",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ticket})
     });
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.message);
+    sessionToken=data.sessionToken;
+    sessionStorage.setItem("azimSession",sessionToken);
+    setStatus("Facebook connected. Now tap Sync Pages.");
+  }catch(error){
+    setStatus("Facebook session error: "+error.message);
+  }
+}
 
+function selectedIds(){
+  return [...document.querySelectorAll(".pageCheck:checked")].map(x=>x.value);
+}
+
+function updateCount(){
+  document.getElementById("pageCount").textContent=selectedIds().length+" Pages selected";
+}
+
+function selectAll(value){
+  document.querySelectorAll(".pageCheck").forEach(x=>x.checked=value);
   updateCount();
-
 }
 
-async function syncPages() {
-
-  if (!sessionToken) {
-
-    setStatus(
-      "Facebook not connected. Tap Connect Facebook first."
-    );
-
+async function syncPages(){
+  if(!sessionToken){
+    setStatus("Facebook not connected. Tap Connect Facebook first.");
     return;
-
   }
-
   setStatus("Loading Pages...");
-
-  try {
-
-    const response = await api("/api/pages");
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message);
-    }
-
-    pageData = data.pages || [];
-
-    const box =
-      document.getElementById("pages");
-
-    box.innerHTML = "";
-
-    if (!pageData.length) {
-
-      box.textContent = "No Pages found.";
-
-      return;
-
-    }
-
-    pageData.forEach(page => {
-
-      const div =
-        document.createElement("div");
-
-      div.className = "page";
-
-      const label =
-        document.createElement("label");
-
-      const checkbox =
-        document.createElement("input");
-
-      checkbox.type = "checkbox";
-      checkbox.className = "pageCheck";
-      checkbox.value = page.id;
-
-      checkbox.addEventListener(
-        "change",
-        updateCount
-      );
-
-      const name =
-        document.createElement("span");
-
-      name.textContent =
-        page.name + " — " + page.id;
-
-      label.append(checkbox, name);
-
+  try{
+    const response=await api("/api/pages");
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.message);
+    pageData=data.pages||[];
+    const box=document.getElementById("pages");
+    box.replaceChildren();
+    if(!pageData.length){box.textContent="No Pages found.";return;}
+    pageData.forEach(page=>{
+      const div=document.createElement("div");
+      div.className="page";
+      const label=document.createElement("label");
+      const checkbox=document.createElement("input");
+      checkbox.type="checkbox";
+      checkbox.className="pageCheck";
+      checkbox.value=page.id;
+      checkbox.addEventListener("change",updateCount);
+      const name=document.createElement("span");
+      name.textContent=page.name+" — "+page.id;
+      label.append(checkbox,name);
       div.append(label);
-
       box.append(div);
-
     });
-
-    setStatus(
-      "Page Sync successful: " +
-      pageData.length +
-      " Pages found."
-    );
-
+    setStatus("Page Sync successful: "+pageData.length+" Pages found.");
     updateCount();
-
-  } catch (error) {
-
-    setStatus(
-      "Page Sync failed: " + error.message
-    );
-
+  }catch(error){
+    setStatus("Page Sync failed: "+error.message);
   }
-
 }
 
-async function publishVideos() {
-
-  const file =
-    document.getElementById("videoFile").files[0];
-
-  const ids = selectedIds();
-
-  if (!sessionToken) {
-
-    alert("Connect Facebook first.");
-
-    return;
-
+// LOAD COUNTRIES
+async function loadCountries(){
+  try{
+    const response=await fetch(API+"/api/countries");
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.message);
+    countries=data.countries||[];
+    renderCountries();
+  }catch(error){
+    document.getElementById("countrySelect").innerHTML="";
+    setStatus("Country list error: "+error.message);
   }
+}
 
-  if (!file) {
+function renderCountries(){
+  const search=document.getElementById("countrySearch").value.toLowerCase();
+  const select=document.getElementById("countrySelect");
+  select.replaceChildren();
+  countries.filter(c=>c.name.toLowerCase().includes(search)).forEach(c=>{
+    const option=document.createElement("option");
+    option.value=c.isoCode;
+    option.textContent=c.name;
+    option.selected=selectedCountryCodes.has(c.isoCode);
+    select.append(option);
+  });
+}
 
-    alert("Please select a video file.");
+function filterCountries(){renderCountries();}
 
+document.getElementById("countrySelect").addEventListener("change",async function(){
+  [...this.selectedOptions].forEach(o=>selectedCountryCodes.add(o.value));
+  renderCountries();
+  renderSelectedCountries();
+  await renderRegionCountryOptions();
+});
+
+function renderSelectedCountries(){
+  const names=countries.filter(c=>selectedCountryCodes.has(c.isoCode)).map(c=>c.name);
+  document.getElementById("selectedCountries").textContent=names.join(", ")||"None";
+}
+
+function clearCountries(){
+  selectedCountryCodes.clear();
+  selectedRegionKeys.clear();
+  renderCountries();
+  renderSelectedCountries();
+  renderSelectedRegions();
+  renderRegionCountryOptions();
+  document.getElementById("regions").textContent="Select a country to load regions.";
+}
+
+async function renderRegionCountryOptions(){
+  const select=document.getElementById("regionCountry");
+  select.replaceChildren();
+  const chosen=countries.filter(c=>selectedCountryCodes.has(c.isoCode));
+  if(!chosen.length){
+    const option=document.createElement("option");
+    option.value="";
+    option.textContent="Select a country first";
+    select.append(option);
     return;
-
   }
+  chosen.forEach(c=>{
+    const option=document.createElement("option");
+    option.value=c.isoCode;
+    option.textContent=c.name;
+    select.append(option);
+  });
+  await loadRegions(select.value);
+}
 
-  if (!ids.length) {
+document.getElementById("regionCountry").addEventListener("change",function(){
+  loadRegions(this.value);
+});
 
-    alert("Select at least one Page.");
+async function loadRegions(code){
+  const box=document.getElementById("regions");
+  box.textContent="Loading regions...";
+  regions=[];
+  try{
+    const response=await fetch(API+"/api/regions/"+encodeURIComponent(code));
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.message);
+    regions=data.regions||[];
+    renderRegions();
+  }catch(error){
+    box.textContent="Region list error: "+error.message;
+  }
+}
 
+function renderRegions(){
+  const box=document.getElementById("regions");
+  const search=document.getElementById("regionSearch").value.toLowerCase();
+  box.replaceChildren();
+  const countryCode=document.getElementById("regionCountry").value;
+  const filtered=regions.filter(r=>r.name.toLowerCase().includes(search));
+  if(!filtered.length){
+    box.textContent="No regions found for this country.";
     return;
-
   }
-
-  const button =
-    document.getElementById("publishBtn");
-
-  button.disabled = true;
-
-  button.textContent = "Uploading...";
-
-  const form = new FormData();
-
-  form.append("video", file);
-
-  form.append(
-    "pageIds",
-    JSON.stringify(ids)
-  );
-
-  form.append(
-    "type",
-    document.getElementById("type").value
-  );
-
-  form.append(
-    "title",
-    document.getElementById("title").value
-  );
-
-  form.append(
-    "description",
-    document.getElementById("description").value
-  );
-
-  form.append(
-    "scheduleAt",
-    document.getElementById("schedule").value
-  );
-
-  form.append(
-    "excludedCountries",
-    document.getElementById("countries").value
-  );
-
-  form.append(
-    "excludedRegions",
-    document.getElementById("regions").value
-  );
-
-  const report =
-    document.getElementById("report");
-
-  report.textContent =
-    "Uploading to " +
-    ids.length +
-    " Pages. Please wait...";
-
-  try {
-
-    const response = await api(
-      "/api/publish",
-      {
-        method: "POST",
-        body: form
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message);
-    }
-
-    report.innerHTML = "";
-
-    (data.results || []).forEach(item => {
-
-      const div =
-        document.createElement("div");
-
-      div.className = "result";
-
-      div.textContent =
-        (item.success ? "SUCCESS — " : "FAILED — ") +
-        item.pageName +
-        (item.id ? " (ID: " + item.id + ")" : "") +
-        (item.error ? " — " + item.error : "");
-
-      report.append(div);
-
+  filtered.forEach(region=>{
+    const key=countryCode+":"+region.code;
+    const div=document.createElement("div");
+    div.className="region";
+    const label=document.createElement("label");
+    const checkbox=document.createElement("input");
+    checkbox.type="checkbox";
+    checkbox.checked=selectedRegionKeys.has(key);
+    checkbox.addEventListener("change",()=>{
+      if(checkbox.checked)selectedRegionKeys.add(key);
+      else selectedRegionKeys.delete(key);
+      renderSelectedRegions();
     });
-
-    setStatus(
-      "Publishing attempt finished. Check the report."
-    );
-
-  } catch (error) {
-
-    report.textContent =
-      "Error: " + error.message;
-
-    setStatus("Publishing failed.");
-
-  } finally {
-
-    button.disabled = false;
-
-    button.textContent =
-      "Publish to Selected Pages";
-
-  }
-
+    const text=document.createElement("span");
+    text.textContent=region.name;
+    label.append(checkbox,text);
+    div.append(label);
+    box.append(div);
+  });
 }
 
-redeemTicket().then(checkBackend);
+function filterRegions(){renderRegions();}
 
+function renderSelectedRegions(){
+  const names=[];
+  selectedRegionKeys.forEach(key=>{
+    const [countryCode,regionCode]=key.split(":");
+    const country=countries.find(c=>c.isoCode===countryCode);
+    const region=regions.find(r=>r.code===regionCode);
+    if(country&&region)names.push(country.name+" — "+region.name);
+  });
+  document.getElementById("selectedRegions").textContent=names.join(", ")||"None";
+}
+
+function clearRegions(){
+  selectedRegionKeys.clear();
+  renderRegions();
+  renderSelectedRegions();
+}
+
+async function publishVideos(){
+  const file=document.getElementById("videoFile").files[0];
+  const ids=selectedIds();
+
+  if(!sessionToken){alert("Connect Facebook first.");return;}
+  if(!file){alert("Please select a video file.");return;}
+  if(!ids.length){alert("Select at least one Page.");return;}
+
+  const button=document.getElementById("publishBtn");
+  button.disabled=true;
+  button.textContent="Uploading...";
+
+  const form=new FormData();
+  form.append("video",file);
+  form.append("pageIds",JSON.stringify(ids));
+  form.append("type",document.getElementById("type").value);
+  form.append("title",document.getElementById("title").value);
+  form.append("description",document.getElementById("description").value);
+  form.append("scheduleAt",document.getElementById("schedule").value);
+
+  const report=document.getElementById("report");
+  report.textContent="Uploading to "+ids.length+" Pages. Please wait...";
+
+  try{
+    const response=await api("/api/publish",{method:"POST",body:form});
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.message);
+    report.replaceChildren();
+    (data.results||[]).forEach(item=>{
+      const div=document.createElement("div");
+      div.className="result";
+      div.textContent=(item.success?"SUCCESS — ":"FAILED — ")+item.pageName+
+        (item.id?" (ID: "+item.id+")":"")+
+        (item.error?" — "+item.error:"");
+      report.append(div);
+    });
+    setStatus("Publishing attempt finished. Check the report.");
+  }catch(error){
+    report.textContent="Error: "+error.message;
+    setStatus("Publishing failed.");
+  }finally{
+    button.disabled=false;
+    button.textContent="Publish to Selected Pages";
+  }
+}
+
+async function start(){
+  await redeemTicket();
+  await checkBackend();
+  await loadCountries();
+}
+
+start();
 </script>
-
 </body>
 </html>
