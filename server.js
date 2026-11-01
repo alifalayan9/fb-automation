@@ -4,8 +4,14 @@ const cors = require("cors");
 const crypto = require("crypto");
 const multer = require("multer");
 const fs = require("fs");
+const path = require("path");
+const {
+  Country,
+  State
+} = require("country-state-city");
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION || "v26.0";
 
@@ -35,16 +41,20 @@ app.use(express.json({ limit: "2mb" }));
 const loginStates = new Map();
 const sessions = new Map();
 
+const uploadDir = "/tmp/azim-uploads";
+
+fs.mkdirSync(uploadDir, { recursive: true });
+
 const upload = multer({
-  dest: "/tmp/azim-uploads/",
+  dest: uploadDir,
   limits: {
     fileSize: 500 * 1024 * 1024,
     files: 1
   }
 });
 
-function graphUrl(pathname) {
-  return `https://graph.facebook.com/${GRAPH_VERSION}/${pathname}`;
+function graphUrl(endpoint) {
+  return `https://graph.facebook.com/${GRAPH_VERSION}/${endpoint}`;
 }
 
 function getSession(req, res, next) {
@@ -69,16 +79,16 @@ function getSession(req, res, next) {
 async function graphError(response) {
   const data = await response.json().catch(() => ({}));
 
-  const message =
+  throw new Error(
     data?.error?.message ||
-    `Meta API error (${response.status})`;
-
-  throw new Error(message);
+    `Meta API error (${response.status})`
+  );
 }
 
 app.get("/", (req, res) => {
   res.json({
     app: "AZIM AUTOMATION",
+    version: "3.0.0",
     status: "Backend Running"
   });
 });
@@ -88,6 +98,61 @@ app.get("/api/health", (req, res) => {
     success: true,
     message: "AZIM Automation Backend is working"
   });
+});
+
+// COUNTRY LIST
+app.get("/api/countries", (req, res) => {
+  try {
+    const countries = Country.getAllCountries()
+      .map(country => ({
+        name: country.name,
+        isoCode: country.isoCode
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    res.json({
+      success: true,
+      countries
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Country list unavailable."
+    });
+  }
+});
+
+// STATE / DIVISION / PROVINCE LIST
+app.get("/api/regions/:countryCode", (req, res) => {
+  try {
+    const code = String(req.params.countryCode || "")
+      .toUpperCase();
+
+    if (!/^[A-Z]{2}$/.test(code)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid country code."
+      });
+    }
+
+    const regions = State.getStatesOfCountry(code)
+      .map(state => ({
+        name: state.name,
+        code: state.isoCode,
+        countryCode: state.countryCode
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    res.json({
+      success: true,
+      regions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Region list unavailable."
+    });
+  }
 });
 
 // FACEBOOK LOGIN
@@ -198,10 +263,9 @@ app.get("/auth/facebook/callback", async (req, res) => {
   }
 });
 
-// REDEEM LOGIN SESSION
+// REDEEM SESSION
 app.post("/api/session/redeem", (req, res) => {
   const ticket = String(req.body?.ticket || "");
-
   const session = sessions.get(ticket);
 
   if (!session) {
@@ -217,7 +281,7 @@ app.post("/api/session/redeem", (req, res) => {
   });
 });
 
-// GET CONNECTED PAGES
+// GET PAGES
 app.get("/api/pages", getSession, (req, res) => {
   res.json({
     success: true,
@@ -229,7 +293,7 @@ app.get("/api/pages", getSession, (req, res) => {
   });
 });
 
-// PUBLISH VIDEO OR REEL
+// PUBLISH
 app.post(
   "/api/publish",
   getSession,
@@ -263,7 +327,7 @@ app.post(
         ids = [];
       }
 
-      if (!Array.isArray(ids) || ids.length === 0) {
+      if (!Array.isArray(ids) || !ids.length) {
         return res.status(400).json({
           success: false,
           message: "Select at least one Page."
@@ -306,6 +370,7 @@ app.post(
         });
       }
 
+      // Read file once. Large uploads may require more server memory.
       const buffer = await fs.promises.readFile(file.path);
       const results = [];
 
@@ -320,7 +385,6 @@ app.post(
 
           let result;
 
-          // NORMAL FACEBOOK PAGE VIDEO
           if (type === "video") {
             const form = new FormData();
 
@@ -346,19 +410,9 @@ app.post(
               form.append("published", "true");
             }
 
-            if (excludedCountries.trim()) {
-              form.append(
-                "excluded_countries",
-                excludedCountries.trim()
-              );
-            }
-
-            if (excludedRegions.trim()) {
-              form.append(
-                "excluded_regions",
-                excludedRegions.trim()
-              );
-            }
+            // Do not send unverified region names or IDs.
+            // Audience restriction requires Meta-supported
+            // targeting IDs and endpoint-specific validation.
 
             const response = await fetch(
               graphUrl(`${page.id}/videos`),
@@ -373,10 +427,8 @@ app.post(
             }
 
             result = await response.json();
-          }
 
-          // FACEBOOK REELS
-          else {
+          } else {
             const startUrl = new URL(
               graphUrl(`${page.id}/video_reels`)
             );
