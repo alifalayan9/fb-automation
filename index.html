@@ -1,137 +1,815 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AZIM AUTOMATION</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>AZIM AUTOMATION | Geo Targeting</title>
 <style>
-:root{--blue:#1769e0;--ink:#172033;--muted:#687386;--line:#e2e8f0;--bg:#f3f6fb;--green:#16834b;--red:#c43c43}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",Arial,sans-serif;background:var(--bg);color:var(--ink)}header{background:#fff;padding:17px max(18px,calc((100% - 980px)/2));border-bottom:1px solid var(--line);color:var(--blue);font-size:23px;font-weight:800;letter-spacing:.3px}main{max-width:980px;margin:auto;padding:14px}.hero{padding:8px 2px 14px}.hero h1{font-size:23px;margin:8px 0}.hero p,.hint{color:var(--muted);font-size:13px;line-height:1.55}.card{background:#fff;padding:17px;border-radius:15px;margin:13px 0;box-shadow:0 3px 14px #15213a0a;border:1px solid #edf0f5}.card h2{font-size:18px;margin:0 0 13px}.card h3{font-size:15px;margin:0 0 10px}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer;font:inherit;font-size:14px}button.secondary{background:#eaf1fc;color:#164d9c}button.success{background:var(--green)}button.danger{background:var(--red)}button:disabled{opacity:.48;cursor:not-allowed}.plus{width:38px;height:38px;padding:0;border-radius:50%;font-size:23px;line-height:1}.wide{width:100%}input,textarea,select{width:100%;padding:11px 12px;margin:6px 0 12px;border:1px solid #ccd5e2;border-radius:10px;font:inherit;background:white;color:var(--ink)}input[type=checkbox]{width:18px;height:18px;margin:0;accent-color:var(--blue)}label{font-size:14px;font-weight:650}.status{padding:11px;background:#f2f6fc;border-radius:10px;white-space:pre-wrap;font-size:13px}.list{display:grid;gap:8px}.item{padding:10px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;gap:9px}.item label{display:flex;align-items:center;gap:9px;flex:1}.tag{font-size:12px;color:#155c36;background:#e8f7ef;padding:4px 8px;border-radius:20px}.countryBlock{border:1px solid var(--line);border-radius:12px;padding:12px;margin:9px 0}.regionGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}.regionGrid label{display:flex;align-items:center;gap:8px;font-weight:450;border:1px solid #edf0f5;padding:8px;border-radius:8px}.clipGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.clip{border:1px solid var(--line);border-radius:10px;padding:10px}.clip label{display:flex;align-items:center;gap:8px}.clip a{display:inline-block;margin-top:8px;color:var(--blue);font-size:13px}.hidden{display:none!important}.reportLine{padding:9px;border-bottom:1px solid #eee;font-size:13px}.progress{height:8px;background:#e9edf4;border-radius:20px;overflow:hidden}.progress>div{height:100%;background:var(--blue);width:0%}@media(max-width:620px){.regionGrid,.clipGrid{grid-template-columns:1fr}.card{padding:14px}header{font-size:20px}}
-</style></head>
+:root{--bg:#0b1220;--card:#121f33;--line:#2b3d58;--text:#edf3ff;--muted:#9aabc5;--blue:#5b9cff;--green:#3dd598;--red:#ff7185}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Arial,sans-serif}
+header{padding:18px;background:#101a2b;border-bottom:1px solid var(--line)}
+.wrap{max-width:1100px;margin:auto;padding:18px}
+.brand{font-size:22px;font-weight:850}.muted,.small{color:var(--muted)}.small{font-size:12px}
+h1{font-size:28px;margin:12px 0 5px}h2{font-size:19px;margin:0 0 14px}
+.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(270px,.8fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px;margin-bottom:16px}
+input,select,textarea{width:100%;padding:11px;border-radius:9px;border:1px solid #344966;background:#0b1627;color:var(--text);font:inherit}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--blue)}
+label{display:block;margin:9px 0 5px;font-size:13px;font-weight:650}
+button{border:0;border-radius:9px;padding:10px 13px;background:var(--blue);color:#081426;font-weight:750;cursor:pointer}
+button.secondary{background:#20324c;color:#e4eeff;border:1px solid #354c6c}
+button.danger{background:#492331;color:#ffdce2;border:1px solid #794052}
+button.success{background:var(--green);color:#06271c}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{max-width:100%}.search{display:flex;gap:8px;margin:12px 0}.search input{flex:1;min-width:0}
+.countries{display:grid;gap:9px}
+.country{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#0e192a}
+.countryhead{display:flex;align-items:center;gap:9px;padding:11px;background:#17263d}
+.countryhead input{width:17px;flex:none}.countryname{font-weight:750;flex:1;overflow-wrap:anywhere}
+.countryhead button{padding:6px 9px;font-size:12px}
+.regions{padding:11px;border-top:1px solid var(--line)}
+.regiongrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.region{display:flex;gap:8px;align-items:flex-start;padding:8px;border:1px solid #2a3d57;border-radius:8px;background:#121f32;font-size:13px}
+.region input{flex:none;margin-top:3px}.region span{overflow-wrap:anywhere}
+.status{padding:11px;border-radius:9px;background:#172840;border:1px solid #344966;white-space:pre-wrap;font-size:13px;margin-top:10px}
+.ok{background:#102b28;border-color:#276a59}.warn{background:#302718;border-color:#6c5830}.err{background:#311923;border-color:#743342}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.chip{display:flex;align-items:center;gap:6px;background:#1b304b;border:1px solid #355373;border-radius:99px;padding:5px 9px;font-size:12px}
+.chip button{background:transparent;color:#ffadba;padding:0 2px;font-size:17px}
+.metric{display:inline-block;background:#0d192a;border:1px solid var(--line);border-radius:9px;padding:10px;margin:3px}
+.metric b{font-size:21px;display:block}
+.field{margin:12px 0}.note{font-size:12px;color:#ffe4a5;background:#2b2519;border-left:3px solid #ffd166;padding:10px;margin:12px 0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+nav button{background:#172840;color:#dce9ff;border:1px solid #344966}
+nav button.active{background:#315d91;border-color:#5b9cff}
+.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.wrap{padding:12px}h1{font-size:24px}}
+@media(max-width:480px){.regiongrid{grid-template-columns:1fr}.countryhead{gap:6px}.countryhead button{padding:6px;font-size:11px}}
+</style>
+</head>
 <body>
-<header>AZIM AUTOMATION</header>
-<main>
-<div class="hero"><h1>ভিডিও প্রকাশ ও ব্যবস্থাপনা</h1><p>পেজ নির্বাচন, সেভ করা Geo তালিকা এবং ভিডিও ক্লিপ—সব এক জায়গায়।</p></div>
-<section class="card"><h2>ফেসবুক সংযোগ</h2><p id="status" class="status">সার্ভারের সঙ্গে সংযোগ পরীক্ষা হচ্ছে...</p><div class="row"><button onclick="connectFacebook()">ফেসবুক সংযোগ</button><button class="secondary" onclick="syncPages()">পেজ রিফ্রেশ</button></div></section>
-<section class="card"><div class="row between"><h2>১. পেজ সিলেক্টর</h2><span id="pageCount" class="tag">০ পেজ নির্বাচিত</span></div><div class="row"><button class="secondary" onclick="selectAll(true)">সব পেজ সিলেক্ট</button><button class="secondary" onclick="selectAll(false)">সব বাতিল</button></div><div id="pages" class="list" style="margin-top:10px">ফেসবুক সংযোগ করে পেজ রিফ্রেশ করুন।</div></section>
-<section class="card"><div class="row between"><h2>২. জিও অডিয়েন্স ব্লকিং তালিকা</h2><button class="plus" title="দেশ যোগ করুন" onclick="addCountryToDraft()">＋</button></div><p class="hint">দেশ বেছে নিয়ে তার বিভাগ/রাজ্য নির্বাচন করুন। একাধিক দেশের নির্বাচন একসঙ্গে সেভ করা যাবে।</p><label>দেশ নির্বাচন করুন</label><select id="countrySelect"><option value="">দেশের তালিকা লোড হচ্ছে...</option></select><div class="row" style="margin-top:10px"><button class="secondary" onclick="selectAllRegions(true)">সবগুলো নির্বাচন</button><button class="secondary" onclick="selectAllRegions(false)">সব বাদ</button></div><div id="regionChooser"></div><div class="row"><button onclick="addChosenCountry()">＋ নির্বাচিত বিভাগ যোগ করুন</button><button class="secondary" onclick="clearCountryDraft()">সব দেশের বাছাই মুছুন</button></div><div class="row between" style="margin-top:15px"><h3>সেভ করার তালিকা</h3><span id="geoCount" class="tag">০টি বিভাগ</span></div><div id="geoDraft"></div><button class="success wide" onclick="saveGeo()">সেভ করুন</button><p id="geoSavedMsg" class="hint">সেভ করা তালিকা এই ব্রাউজারে সংরক্ষিত থাকবে।</p></section>
-<section class="card"><div class="row between"><h2>৩. ভিডিও নির্বাচন</h2><span class="tag">প্রকাশের জন্য</span></div><label>ভিডিও ফাইল</label><input id="videoFile" type="file" accept="video/*"><label>ভিডিওর নাম / শিরোনাম</label><input id="title" maxlength="255" placeholder="ভিডিওর নাম লিখুন"><label>বর্ণনা / ক্যাপশন</label><textarea id="description" placeholder="ভিডিওর বর্ণনা লিখুন"></textarea><label>ভিডিওর ধরন</label><select id="type"><option value="video">সাধারণ পেজ ভিডিও</option><option value="reel">ফেসবুক রিল</option></select><label>প্রকাশের সময় (ঐচ্ছিক)</label><input id="schedule" type="datetime-local"><div class="countryBlock"><div class="row between"><b>সেভ করা Geo তালিকা</b><button class="plus" onclick="attachGeo()" title="ভিডিওতে যোগ করুন">＋</button></div><div id="attachedGeo" class="hint">এই ভিডিওর জন্য এখনো Geo তালিকা যোগ করা হয়নি।</div><p class="hint">＋ চাপলে সেভ করা তালিকা এই ভিডিওর সঙ্গে যুক্ত হবে। তালিকা যুক্ত হওয়া মানেই Facebook-এ ব্লক কার্যকর হওয়া নয়; Meta API-তে সমর্থন যাচাই প্রয়োজন।</p></div></section>
-<section class="card"><div class="row between"><h2>৪. প্রকাশ নিয়ন্ত্রণ</h2><span id="runState" class="tag">প্রস্তুত</span></div><div class="row"><button id="startBtn" class="success" onclick="publishVideos()">▶ START</button><button id="stopBtn" class="danger" onclick="stopPublishing()" disabled>■ STOP</button></div><p class="hint">START দিলে নির্বাচিত পেজে প্রকাশ শুরু হবে। STOP দিলে চলমান অনুরোধ বাতিলের চেষ্টা হবে; ইতিমধ্যে প্রকাশিত ভিডিও মুছে যাবে না।</p><div id="report" class="status">এখনো কোনো প্রকাশের কাজ শুরু হয়নি।</div></section>
-<section class="card"><div class="row between"><h2>৫. ভিডিও ক্লিপ এডিটর</h2><span class="tag">৩০ সেকেন্ড করে</span></div><p class="hint">একটি ভিডিও দিলে সর্বোচ্চ ৩০টি আলাদা MP4 ক্লিপ তৈরি হবে। শেষ ক্লিপটি ৩০ সেকেন্ডের কম হতে পারে।</p><label>ক্লিপ তৈরির ভিডিও</label><input id="clipFile" type="file" accept="video/*"><button id="splitBtn" class="wide" onclick="splitClips()">ভিডিও থেকে ক্লিপ তৈরি করুন</button><div id="clipStatus" class="hint" style="margin:10px 0"></div><div id="clipActions" class="row hidden"><button class="secondary" onclick="selectClips(true)">সব ক্লিপ সিলেক্ট</button><button class="secondary" onclick="selectClips(false)">সব বাতিল</button><button onclick="downloadSelectedClips()">সিলেক্ট করা ক্লিপ ডাউনলোড</button></div><div id="clips" class="clipGrid" style="margin-top:10px"></div></section>
+<header>
+  <div class="wrap" style="padding:0 12px">
+    <div class="brand">🔷 AZIM AUTOMATION</div>
+    <div class="small">Facebook Page Video Manager · Geo Targeting</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>ভিডিওর দর্শক নির্বাচন করুন</h1>
+  <div class="muted">দেশ ও প্রথম-স্তরের অঞ্চল নির্বাচন করে Geo Group তৈরি করুন।</div>
+
+  <nav>
+    <button class="active" data-tab="geo">১. Geo Targeting</button>
+    <button data-tab="publish">২. ভিডিও প্রকাশ</button>
+    <button data-tab="backend">৩. Backend সংযোগ</button>
+  </nav>
+
+  <div class="layout">
+    <section>
+      <div id="tab-geo">
+        <div class="card">
+          <h2>🌍 দেশ ও অঞ্চল নির্বাচন</h2>
+          <div class="search">
+            <input id="search" placeholder="দেশ খুঁজুন — Bangladesh, India...">
+            <button class="secondary" id="clearSearch">মুছুন</button>
+          </div>
+          <div class="row" style="margin-bottom:12px">
+            <button class="secondary" id="selectVisible">দেখানো সব দেশ নির্বাচন</button>
+            <button class="secondary" id="clearAll">সব বাতিল</button>
+            <button class="secondary" id="refresh">তালিকা রিফ্রেশ</button>
+          </div>
+          <div id="loadStatus" class="small">লোকেশন ডেটা লোড হচ্ছে...</div>
+          <div id="countries" class="countries" style="margin-top:10px">
+            <div class="status">তালিকা লোড হচ্ছে...</div>
+          </div>
+          <div class="note">
+            বাংলাদেশে ৮টি বিভাগ এবং ভারতে রাজ্য ও কেন্দ্রশাসিত অঞ্চল দেখানো হয়।
+            অন্য দেশগুলোর ক্ষেত্রে ডেটাসেটে পাওয়া প্রথম-স্তরের প্রশাসনিক অঞ্চল দেখানো হয়।
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📌 নির্বাচিত লোকেশন</h2>
+          <div class="small" id="selectedCount">০টি নির্বাচন</div>
+          <div id="chips" class="chips">কোনো লোকেশন নির্বাচন করা হয়নি।</div>
+          <label for="groupName">Geo Group-এর নাম</label>
+          <input id="groupName" placeholder="যেমন: Bangladesh - Dhaka & Sylhet">
+          <div class="row" style="margin-top:12px">
+            <button class="success" id="saveGroup">Group সংরক্ষণ</button>
+            <button class="secondary" id="loadGroup">Group লোড</button>
+            <button class="danger" id="deleteGroup">Group মুছুন</button>
+            <button class="secondary" id="exportGroup">JSON Export</button>
+          </div>
+          <div id="geoStatus" class="status">দেশ বা অঞ্চল নির্বাচন করুন।</div>
+        </div>
+      </div>
+
+      <div id="tab-publish" class="hidden">
+        <div class="card">
+          <h2>🎬 ভিডিও / Reel প্রকাশ</h2>
+          <label for="page">Facebook Page</label>
+          <select id="page">
+            <option value="">Page Sync করুন</option>
+          </select>
+
+          <label for="type">প্রকাশনার ধরন</label>
+          <select id="type">
+            <option value="video">সাধারণ Page Video</option>
+            <option value="reel">Facebook Reel</option>
+          </select>
+
+          <label for="title">ভিডিওর শিরোনাম</label>
+          <input id="title" maxlength="255" placeholder="ভিডিওর Title">
+
+          <label for="description">ভিডিওর বিবরণ / Caption</label>
+          <textarea id="description" rows="4" placeholder="ভিডিওর বিবরণ লিখুন..."></textarea>
+
+          <label for="video">ভিডিও ফাইল</label>
+          <input id="video" type="file" accept="video/*">
+          <div id="fileInfo" class="small">কোনো ভিডিও নির্বাচন করা হয়নি।</div>
+
+          <label for="schedule">শিডিউল (ঐচ্ছিক)</label>
+          <input id="schedule" type="datetime-local">
+
+          <div class="note">
+            নির্বাচিত Geo Group backend-এ পাঠানো হবে। Backend-এ Meta API targeting প্রয়োগ না থাকলে
+            শুধু HTML দিয়ে Facebook-এ লোকেশন সীমাবদ্ধ করা যাবে না।
+          </div>
+
+          <div class="row">
+            <button class="success" id="publish">প্রকাশের অনুরোধ পাঠান</button>
+            <button class="secondary" id="start">START</button>
+            <button class="danger" id="stop">STOP</button>
+          </div>
+          <div id="publishStatus" class="status">
+            প্রকাশের আগে Page, ভিডিও এবং Geo Group নির্বাচন করুন।
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-backend" class="hidden">
+        <div class="card">
+          <h2>🔌 Backend ও Facebook সংযোগ</h2>
+          <label for="api">Backend HTTPS URL</label>
+          <input id="api" placeholder="https://your-backend.example.com">
+          <div class="row" style="margin-top:12px">
+            <button id="saveApi">URL সংরক্ষণ</button>
+            <button class="secondary" id="testApi">Backend পরীক্ষা</button>
+            <button class="secondary" id="login">Facebook Login</button>
+            <button class="secondary" id="syncPages">Page Sync</button>
+          </div>
+          <div id="backendStatus" class="status">Backend URL সংরক্ষণ করুন।</div>
+          <div class="note">
+            এই HTML-এ Facebook Access Token বা App Secret রাখা হয় না।
+            OAuth ও Token নিরাপদ Backend-এ রাখতে হবে।
+          </div>
+          <h3>Backend API Contract</h3>
+          <p class="small">
+            GET /health<br>
+            GET /api/pages<br>
+            POST /api/publish (multipart/form-data)
+          </p>
+          <p class="small">
+            Publish fields: pageId, mediaType, title, description, video,
+            scheduleAt, geoTargeting.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h2>📊 Targeting Summary</h2>
+        <div class="metric"><b id="countryCount">0</b><span class="small">দেশ</span></div>
+        <div class="metric"><b id="regionCount">0</b><span class="small">অঞ্চল</span></div>
+        <div class="metric"><b id="groupCount">—</b><span class="small">Group</span></div>
+        <div id="preview" class="status">কোনো লোকেশন নির্বাচন করা হয়নি।</div>
+      </div>
+      <div class="card">
+        <h2>🛡️ গুরুত্বপূর্ণ তথ্য</h2>
+        <p class="small">• লোকেশন নির্বাচন করলেই Facebook-এ restriction চালু হয় না।</p>
+        <p class="small">• Meta-র Region ID আর BD-13 বা IN-MH-এর মতো ISO কোড এক জিনিস নয়।</p>
+        <p class="small">• Backend-কে নির্বাচিত লোকেশন যাচাই করে সমর্থিত API request-এ পাঠাতে হবে।</p>
+        <p class="small">• Reels ও সাধারণ ভিডিওর API সমর্থন আলাদা হতে পারে।</p>
+      </div>
+    </aside>
+  </div>
+  <footer>AZIM AUTOMATION · Geo settings are not proof of successful Meta enforcement</footer>
 </main>
+
 <script>
-const API="https://azim-automation-api.onrender.com";let sessionToken=sessionStorage.getItem("azimSession")||"";let pageData=[];let countries=[];let currentRegions=[];let draftGeo=[];let savedGeo=JSON.parse(localStorage.getItem("azimGeoSaved")||"[]");let attachedGeo=[];let clipJobId="";let clipList=[];let publishController=null;
-const $=id=>document.getElementById(id);function setStatus(s){$('status').textContent=s}async function api(path,options={}){options.headers={...(options.headers||{}),...(sessionToken?{Authorization:"Bearer "+sessionToken}:{})};return fetch(API+path,options)}
-function connectFacebook(){location.href=API+"/auth/facebook"}async function redeemTicket(){const m=location.hash.match(/connected=([a-f0-9]+)/i);if(!m)return;history.replaceState(null,"",location.pathname+location.search);try{const r=await fetch(API+"/api/session/redeem",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ticket:m[1]})});const d=await r.json();if(!r.ok)throw Error(d.message);sessionToken=d.sessionToken;sessionStorage.setItem("azimSession",sessionToken);setStatus("ফেসবুক সংযুক্ত হয়েছে। এখন পেজ রিফ্রেশ করুন।")}catch(e){setStatus("সংযোগ সমস্যা: "+e.message)}}
-async function checkBackend(){try{const r=await fetch(API+"/api/health");const d=await r.json();setStatus(d.success?"সার্ভার সচল। "+(sessionToken?"ফেসবুক সেশন পাওয়া গেছে।":"ফেসবুক সংযোগ করুন।"):"সার্ভার সমস্যা")}catch(e){setStatus("সার্ভারের সঙ্গে সংযোগ করা যাচ্ছে না।")}}
-function selectedIds(){return [...document.querySelectorAll('.pageCheck:checked')].map(x=>x.value)}function updateCount(){$('pageCount').textContent=selectedIds().length+" পেজ নির্বাচিত"}function selectAll(v){document.querySelectorAll('.pageCheck').forEach(x=>x.checked=v);updateCount()}
-async function syncPages(){if(!sessionToken){setStatus("আগে ফেসবুক সংযোগ করুন।");return}setStatus("পেজ লোড হচ্ছে...");try{const r=await api('/api/pages');const d=await r.json();if(!r.ok)throw Error(d.message);pageData=d.pages||[];$('pages').innerHTML='';if(!pageData.length){$('pages').textContent='কোনো পেজ পাওয়া যায়নি।';return}pageData.forEach(p=>{const div=document.createElement('div');div.className='item';const label=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.className='pageCheck';cb.value=p.id;cb.addEventListener('change',updateCount);const name=document.createElement('span');name.textContent=p.name;label.append(cb,name);div.append(label);$('pages').append(div)});setStatus(pageData.length+'টি পেজ পাওয়া গেছে।');updateCount()}catch(e){setStatus('পেজ লোড হয়নি: '+e.message)}}
-async function loadCountries(){try{const r=await fetch(API+'/api/countries');const d=await r.json();if(!r.ok)throw Error(d.message);countries=d.countries||[];$('countrySelect').innerHTML='<option value="">দেশ নির্বাচন করুন</option>'+countries.map(c=>`<option value="${c.code}">${escapeHtml(c.name)} (${c.code})</option>`).join('')}catch(e){$('countrySelect').innerHTML='<option value="">দেশের তালিকা পাওয়া যায়নি</option>'; $('geoSavedMsg').textContent='দেশের তালিকা লোড হয়নি: '+e.message}}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-$('countrySelect').addEventListener('change',loadRegions);
-function selectedCountryEntry(code){
-  let entry=draftGeo.find(x=>x.code===code);
-  if(!entry){
-    const country=countries.find(c=>c.code===code);
-    entry={code,name:country?.name||code,regions:[]};
-    draftGeo.push(entry);
-  }
-  return entry;
+"use strict";
+
+const URLS = {
+  countries: "https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json/countries.json",
+  states: "https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json/states.json"
+};
+
+const BD_REGIONS = [
+  {code:"BD-13",name:"ঢাকা"},
+  {code:"BD-10",name:"চট্টগ্রাম"},
+  {code:"BD-54",name:"রাজশাহী"},
+  {code:"BD-27",name:"খুলনা"},
+  {code:"BD-06",name:"বরিশাল"},
+  {code:"BD-60",name:"সিলেট"},
+  {code:"BD-55",name:"রংপুর"},
+  {code:"BD-34",name:"ময়মনসিংহ"}
+];
+
+const IN_REGIONS = [
+  ["IN-AP","Andhra Pradesh"],["IN-AR","Arunachal Pradesh"],
+  ["IN-AS","Assam"],["IN-BR","Bihar"],["IN-CT","Chhattisgarh"],
+  ["IN-GA","Goa"],["IN-GJ","Gujarat"],["IN-HR","Haryana"],
+  ["IN-HP","Himachal Pradesh"],["IN-JH","Jharkhand"],
+  ["IN-KA","Karnataka"],["IN-KL","Kerala"],
+  ["IN-MP","Madhya Pradesh"],["IN-MH","Maharashtra"],
+  ["IN-MN","Manipur"],["IN-ML","Meghalaya"],["IN-MZ","Mizoram"],
+  ["IN-NL","Nagaland"],["IN-OD","Odisha"],["IN-PB","Punjab"],
+  ["IN-RJ","Rajasthan"],["IN-SK","Sikkim"],["IN-TN","Tamil Nadu"],
+  ["IN-TS","Telangana"],["IN-TR","Tripura"],["IN-UP","Uttar Pradesh"],
+  ["IN-UT","Uttarakhand"],["IN-WB","West Bengal"],
+  ["IN-AN","Andaman and Nicobar Islands"],["IN-CH","Chandigarh"],
+  ["IN-DH","Dadra and Nagar Haveli and Daman and Diu"],
+  ["IN-DL","Delhi"],["IN-JK","Jammu and Kashmir"],
+  ["IN-LA","Ladakh"],["IN-LD","Lakshadweep"],["IN-PY","Puducherry"]
+].map(([code,name])=>({code,name}));
+
+const $ = id => document.getElementById(id);
+let countryData = [];
+let stateData = [];
+let openCountries = new Set();
+let selected = new Map();
+
+function status(id,message,type=""){
+  const el=$(id);
+  el.textContent=message;
+  el.className="status"+(type?" "+type:"");
 }
-async function loadRegions(){
-  const code=$('countrySelect').value;
-  $('regionChooser').innerHTML='';
-  currentRegions=[];
-  if(!code)return;
-  $('regionChooser').textContent='বিভাগ/রাজ্য লোড হচ্ছে...';
+
+function apiBase(){
+  return ($("api").value.trim() || localStorage.getItem("azim_api") || "")
+    .replace(/\/+$/,"");
+}
+
+function loadSelected(){
   try{
-    const r=await fetch(API+'/api/regions/'+encodeURIComponent(code));
-    const d=await r.json();
-    if(!r.ok)throw Error(d.message);
-    currentRegions=d.regions||[];
-    $('regionChooser').innerHTML='';
-    if(!currentRegions.length){
-      $('regionChooser').textContent='এই দেশের জন্য বিভাগ/রাজ্যের তথ্য পাওয়া যায়নি।';
-      return;
-    }
-    const entry=draftGeo.find(x=>x.code===code);
-    const selected=new Set((entry?.regions||[]).map(x=>x.code));
-    const wrap=document.createElement('div');
-    wrap.className='regionGrid';
-    currentRegions.forEach(x=>{
-      const label=document.createElement('label');
-      const cb=document.createElement('input');
-      cb.type='checkbox'; cb.value=x.code; cb.className='regionPick';
-      cb.checked=selected.has(x.code);
-      cb.addEventListener('change',()=>toggleRegion(code,x,cb.checked));
-      const span=document.createElement('span'); span.textContent=x.name;
-      const plus=document.createElement('span');
-      plus.textContent=cb.checked?'✓':'＋';
-      plus.style.cssText='margin-left:auto;color:#1769e0;font-weight:800';
-      cb.addEventListener('change',()=>{plus.textContent=cb.checked?'✓':'＋';});
-      label.append(cb,span,plus); wrap.append(label);
+    const list=JSON.parse(localStorage.getItem("azim_selected")||"[]");
+    selected=new Map(list.map(item=>[item.key,item]));
+  }catch(e){selected=new Map();}
+}
+
+function persistSelected(){
+  localStorage.setItem("azim_selected",JSON.stringify([...selected.values()]));
+}
+
+function codeOf(c){return c.iso2||c.code||c.iso3;}
+function nameOf(c){return c.name||c.native||codeOf(c);}
+
+function regionsFor(country){
+  if(country.code==="BD")return BD_REGIONS;
+  if(country.code==="IN")return IN_REGIONS;
+
+  return stateData.filter(s =>
+    s.country_code===country.code ||
+    s.countryCode===country.code ||
+    s.country_iso2===country.code
+  ).map(s=>({
+    code:s.state_code||s.iso2||String(s.id),
+    name:s.name,
+    metaRegionKey:s.meta_region_id||s.facebook_region_id||null
+  })).filter(r=>r.name).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
+function selectedCountryKey(code){return code+"::COUNTRY";}
+function selectedRegionKey(code,regionCode){return code+"::"+regionCode;}
+
+function renderCountries(){
+  const query=$("search").value.trim().toLowerCase();
+  const list=countryData.filter(c=>
+    (c.name+" "+c.code+" "+(c.native||"")).toLowerCase().includes(query)
+  );
+  const root=$("countries");
+  root.replaceChildren();
+
+  if(!list.length){
+    root.innerHTML='<div class="status">কোনো দেশ পাওয়া যায়নি।</div>';
+    return;
+  }
+
+  list.forEach(c=>{
+    const regs=regionsFor(c);
+    const opened=openCountries.has(c.code);
+    const selectedForCountry=[...selected.values()].filter(x=>x.countryCode===c.code);
+    const fullSelected=selected.has(selectedCountryKey(c.code));
+
+    const article=document.createElement("div");
+    article.className="country";
+
+    const head=document.createElement("div");
+    head.className="countryhead";
+
+    const countryCheck=document.createElement("input");
+    countryCheck.type="checkbox";
+    countryCheck.checked=fullSelected;
+    countryCheck.title="পুরো দেশ নির্বাচন";
+
+    countryCheck.addEventListener("change",()=>{
+      if(countryCheck.checked){
+        for(const [key,value] of selected){
+          if(value.countryCode===c.code)selected.delete(key);
+        }
+        const key=selectedCountryKey(c.code);
+        selected.set(key,{
+          key,countryCode:c.code,countryName:c.name,
+          regionCode:null,regionName:"পুরো দেশ",scope:"country"
+        });
+      }else{
+        selected.delete(selectedCountryKey(c.code));
+      }
+      persistSelected();
+      renderCountries();
+      renderSummary();
     });
-    $('regionChooser').append(wrap);
-    renderDraft();
-  }catch(e){$('regionChooser').textContent='বিভাগ/রাজ্য লোড হয়নি: '+e.message;}
-}
-function toggleRegion(countryCode,region,checked){
-  const entry=selectedCountryEntry(countryCode);
-  if(checked){
-    if(!entry.regions.some(x=>x.code===region.code))entry.regions.push(region);
-  }else{
-    entry.regions=entry.regions.filter(x=>x.code!==region.code);
-    if(!entry.regions.length)draftGeo=draftGeo.filter(x=>x.code!==countryCode);
-  }
-  renderDraft();
-}
-function selectAllRegions(checked){
-  const code=$('countrySelect').value;
-  if(!code){alert('আগে দেশ নির্বাচন করুন।');return;}
-  if(checked){
-    currentRegions.forEach(region=>toggleRegion(code,region,true));
-  }else{
-    draftGeo=draftGeo.filter(x=>x.code!==code);
-    renderDraft();
-  }
-  document.querySelectorAll('.regionPick').forEach(cb=>cb.checked=checked);
-  document.querySelectorAll('#regionChooser label').forEach(label=>{
-    const mark=label.querySelector('span:last-child');
-    if(mark)mark.textContent=checked?'✓':'＋';
+
+    const name=document.createElement("div");
+    name.className="countryname";
+    name.textContent=(c.flag?c.flag+" ":"")+c.name;
+
+    const count=document.createElement("span");
+    count.className="small";
+    count.textContent=selectedForCountry.length
+      ? selectedForCountry.length+" নির্বাচিত"
+      : regs.length+" অঞ্চল";
+
+    const toggle=document.createElement("button");
+    toggle.className="secondary";
+    toggle.textContent=opened?"− লুকান":"+ অঞ্চল";
+    toggle.addEventListener("click",()=>{
+      opened?openCountries.delete(c.code):openCountries.add(c.code);
+      renderCountries();
+    });
+
+    head.append(countryCheck,name,count,toggle);
+    article.append(head);
+
+    if(opened){
+      const box=document.createElement("div");
+      box.className="regions";
+
+      const controls=document.createElement("div");
+      controls.className="row";
+      controls.style.marginBottom="10px";
+
+      const all=document.createElement("button");
+      all.className="secondary";
+      all.textContent="সব অঞ্চল নির্বাচন";
+      all.addEventListener("click",()=>{
+        selected.delete(selectedCountryKey(c.code));
+        regs.forEach(r=>{
+          const key=selectedRegionKey(c.code,r.code);
+          selected.set(key,{
+            key,countryCode:c.code,countryName:c.name,
+            regionCode:r.code,regionName:r.name,scope:"region",
+            metaRegionKey:r.metaRegionKey||null
+          });
+        });
+        persistSelected();
+        renderCountries();
+        renderSummary();
+      });
+
+      const clear=document.createElement("button");
+      clear.className="secondary";
+      clear.textContent="এই দেশ পরিষ্কার";
+      clear.addEventListener("click",()=>{
+        for(const [key,value] of selected){
+          if(value.countryCode===c.code)selected.delete(key);
+        }
+        persistSelected();
+        renderCountries();
+        renderSummary();
+      });
+
+      controls.append(all,clear);
+      box.append(controls);
+
+      if(!regs.length){
+        const p=document.createElement("p");
+        p.className="small";
+        p.textContent="এই দেশের প্রথম-স্তরের অঞ্চলের ডেটা পাওয়া যায়নি।";
+        box.append(p);
+      }else{
+        const grid=document.createElement("div");
+        grid.className="regiongrid";
+
+        regs.forEach(r=>{
+          const key=selectedRegionKey(c.code,r.code);
+          const label=document.createElement("label");
+          label.className="region";
+
+          const check=document.createElement("input");
+          check.type="checkbox";
+          check.checked=selected.has(key);
+
+          check.addEventListener("change",()=>{
+            if(check.checked){
+              selected.delete(selectedCountryKey(c.code));
+              selected.set(key,{
+                key,countryCode:c.code,countryName:c.name,
+                regionCode:r.code,regionName:r.name,scope:"region",
+                metaRegionKey:r.metaRegionKey||null
+              });
+            }else{
+              selected.delete(key);
+            }
+            persistSelected();
+            renderCountries();
+            renderSummary();
+          });
+
+          const span=document.createElement("span");
+          span.textContent=r.name;
+          label.append(check,span);
+          grid.append(label);
+        });
+
+        box.append(grid);
+      }
+      article.append(box);
+    }
+
+    root.append(article);
   });
 }
-function addCountryToDraft(){selectAllRegions(true);}
-function addChosenCountry(){
-  const code=$('countrySelect').value;
-  if(!code){alert('আগে দেশ নির্বাচন করুন।');return;}
-  const chosen=[...document.querySelectorAll('.regionPick:checked')];
-  if(!chosen.length){alert('কমপক্ষে একটি বিভাগ/রাজ্য নির্বাচন করুন।');return;}
-  chosen.forEach(cb=>{
-    const region=currentRegions.find(x=>x.code===cb.value);
-    if(region)toggleRegion(code,region,true);
+
+function geoPayload(){
+  const locations=[...selected.values()];
+  return {
+    version:1,
+    selectedLocations:locations,
+    countries:locations.filter(x=>x.scope==="country").map(x=>x.countryCode),
+    regions:locations.filter(x=>x.scope==="region").map(x=>({
+      countryCode:x.countryCode,
+      code:x.regionCode,
+      name:x.regionName,
+      metaRegionKey:x.metaRegionKey||null
+    })),
+    note:"UI region codes are not guaranteed to be valid Meta targeting keys. Backend must validate/map them."
+  };
+}
+
+function renderSummary(){
+  const items=[...selected.values()];
+  const countrySet=new Set(items.map(x=>x.countryCode));
+
+  $("selectedCount").textContent=items.length+"টি নির্বাচন";
+  $("countryCount").textContent=countrySet.size;
+  $("regionCount").textContent=items.filter(x=>x.scope==="region").length;
+
+  const groupName=localStorage.getItem("azim_group_name")||"—";
+  $("groupCount").textContent=groupName==="—"?"—":
+    (groupName.length>12?groupName.slice(0,12)+"…":groupName);
+
+  const chips=$("chips");
+  chips.replaceChildren();
+
+  if(!items.length){
+    chips.textContent="কোনো লোকেশন নির্বাচন করা হয়নি।";
+  }
+
+  items.forEach(item=>{
+    const chip=document.createElement("div");
+    chip.className="chip";
+
+    const text=document.createElement("span");
+    text.textContent=item.countryName+" · "+item.regionName;
+
+    const remove=document.createElement("button");
+    remove.textContent="×";
+    remove.title="Remove";
+    remove.addEventListener("click",()=>{
+      selected.delete(item.key);
+      persistSelected();
+      renderCountries();
+      renderSummary();
+    });
+
+    chip.append(text,remove);
+    chips.append(chip);
+  });
+
+  $("preview").textContent=items.length
+    ?items.map(x=>x.countryName+
+      (x.scope==="country"?" (পুরো দেশ)":" · "+x.regionName)).join("\n")
+    :"কোনো লোকেশন নির্বাচন করা হয়নি।";
+}
+
+async function loadLocations(){
+  $("loadStatus").textContent="লোকেশন ডেটা লোড হচ্ছে...";
+  status("geoStatus","দেশ ও অঞ্চল ডেটা লোড হচ্ছে...");
+
+  try{
+    const responses=await Promise.all([
+      fetch(URLS.countries),
+      fetch(URLS.states)
+    ]);
+
+    if(responses.some(r=>!r.ok)){
+      throw new Error("লোকেশন ডেটাসেট ডাউনলোড করা যায়নি।");
+    }
+
+    const rawCountries=await responses[0].json();
+    stateData=await responses[1].json();
+
+    countryData=rawCountries.map(c=>({
+      code:codeOf(c),
+      name:nameOf(c),
+      native:c.native||"",
+      flag:c.emoji||""
+    })).filter(c=>c.code&&c.name)
+      .sort((a,b)=>a.name.localeCompare(b.name));
+
+    $("loadStatus").textContent=countryData.length+"টি দেশ লোড হয়েছে";
+    renderCountries();
+    renderSummary();
+    status("geoStatus","লোকেশন ডেটা প্রস্তুত।","ok");
+  }catch(error){
+    $("loadStatus").textContent="লোড ব্যর্থ";
+    $("countries").innerHTML='<div class="status err">লোকেশন ডেটা লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</div>';
+    status("geoStatus","লোকেশন ডেটা লোড ব্যর্থ: "+error.message,"err");
+  }
+}
+
+function saveGroup(){
+  if(!selected.size){
+    status("geoStatus","Group সংরক্ষণের আগে একটি দেশ বা অঞ্চল নির্বাচন করুন।","warn");
+    return;
+  }
+
+  const name=$("groupName").value.trim()||"My Geo Group";
+  const group={
+    name,
+    geo:geoPayload(),
+    savedAt:new Date().toISOString()
+  };
+
+  localStorage.setItem("azim_geo_group",JSON.stringify(group));
+  localStorage.setItem("azim_group_name",name);
+  renderSummary();
+  status("geoStatus","“"+name+"” Group এই ব্রাউজারে সংরক্ষিত হয়েছে। এটি Facebook targeting চালু হওয়ার প্রমাণ নয়।","ok");
+}
+
+function loadGroup(){
+  try{
+    const group=JSON.parse(localStorage.getItem("azim_geo_group")||"null");
+    if(!group)throw new Error("কোনো সংরক্ষিত Group নেই।");
+
+    selected=new Map((group.geo.selectedLocations||[])
+      .map(item=>[item.key,item]));
+
+    $("groupName").value=group.name||"";
+    persistSelected();
+    renderCountries();
+    renderSummary();
+    status("geoStatus","“"+group.name+"” Group লোড হয়েছে।","ok");
+  }catch(error){
+    status("geoStatus",error.message,"warn");
+  }
+}
+
+function deleteGroup(){
+  localStorage.removeItem("azim_geo_group");
+  localStorage.removeItem("azim_group_name");
+  $("groupName").value="";
+  renderSummary();
+  status("geoStatus","সংরক্ষিত Group মুছে ফেলা হয়েছে।","ok");
+}
+
+async function apiFetch(path,options={}){
+  const base=apiBase();
+  if(!base)throw new Error("Backend URL সেট করা হয়নি।");
+
+  return fetch(base+path,{
+    credentials:"include",
+    ...options
   });
 }
-function clearCountryDraft(){
-  draftGeo=[];
-  renderDraft();
-  document.querySelectorAll('.regionPick').forEach(cb=>cb.checked=false);
-}
-function removeRegion(countryCode,regionCode){
-  const c=draftGeo.find(x=>x.code===countryCode);
-  if(c){
-    c.regions=c.regions.filter(x=>x.code!==regionCode);
-    if(!c.regions.length)draftGeo=draftGeo.filter(x=>x.code!==countryCode);
-  }
-  renderDraft();
-  if($('countrySelect').value===countryCode){
-    const cb=document.querySelector('.regionPick[value="'+CSS.escape(regionCode)+'"]');
-    if(cb)cb.checked=false;
+
+async function testBackend(){
+  try{
+    const response=await apiFetch("/health");
+    const body=await response.text();
+    if(!response.ok)throw new Error(body||"HTTP "+response.status);
+    status("backendStatus","Backend সাড়া দিয়েছে: "+body,"ok");
+  }catch(error){
+    status("backendStatus","Backend পরীক্ষা ব্যর্থ: "+error.message,"err");
   }
 }
-function renderDraft(){const box=$('geoDraft');box.innerHTML='';let n=0;draftGeo.forEach(c=>{const div=document.createElement('div');div.className='countryBlock';const h=document.createElement('b');h.textContent=c.name+' ('+c.code+')';div.append(h);c.regions.forEach(r=>{n++;const row=document.createElement('div');row.className='row between';const t=document.createElement('span');t.textContent='• '+r.name;const b=document.createElement('button');b.className='secondary';b.textContent='বাদ';b.onclick=()=>removeRegion(c.code,r.code);row.append(t,b);div.append(row)});box.append(div)});$('geoCount').textContent=n+'টি বিভাগ/রাজ্য';if(!draftGeo.length)box.textContent='এখনো কোনো বিভাগ যোগ করা হয়নি。'}function saveGeo(){if(!draftGeo.length){alert('সেভ করার আগে দেশ ও বিভাগ যোগ করুন।');return}savedGeo=draftGeo.map(c=>({code:c.code,name:c.name,regions:c.regions.map(r=>({code:r.code,name:r.name}))}));localStorage.setItem('azimGeoSaved',JSON.stringify(savedGeo));$('geoSavedMsg').textContent='সেভ হয়েছে। নির্বাচিত সব দেশের বিভাগ/রাজ্য একই Geo Group-এ রাখা হয়েছে।';renderSavedGeo()}
-function renderSavedGeo(){if(!savedGeo.length){$('geoSavedMsg').textContent='এখনো কোনো Geo তালিকা সেভ করা হয়নি।';return}const n=savedGeo.reduce((a,c)=>a+c.regions.length,0);$('geoSavedMsg').textContent='সেভ করা আছে: '+savedGeo.length+'টি দেশ, '+n+'টি বিভাগ/রাজ্য।'}function attachGeo(){if(!savedGeo.length){alert('আগে Geo তালিকা সেভ করুন।');return}attachedGeo=savedGeo.map(c=>({...c,regions:[...c.regions]}));$('attachedGeo').textContent=attachedGeo.map(c=>c.name+': '+c.regions.map(r=>r.name).join(', ')).join(' | ')}
-async function publishVideos(){const file=$('videoFile').files[0],ids=selectedIds();if(!sessionToken){setStatus('আগে ফেসবুক সংযোগ করুন।');return}if(!file){alert('ভিডিও নির্বাচন করুন।');return}if(!ids.length){alert('কমপক্ষে একটি পেজ সিলেক্ট করুন।');return}publishController=new AbortController();$('startBtn').disabled=true;$('stopBtn').disabled=false;$('runState').textContent='চলছে';$('report').textContent='নির্বাচিত '+ids.length+'টি পেজে প্রকাশের চেষ্টা চলছে...';const form=new FormData();form.append('video',file);form.append('pageIds',JSON.stringify(ids));form.append('type',$('type').value);form.append('title',$('title').value);form.append('description',$('description').value);form.append('scheduleAt',$('schedule').value);try{const r=await api('/api/publish',{method:'POST',body:form,signal:publishController.signal});const d=await r.json();if(!r.ok)throw Error(d.message||'প্রকাশ ব্যর্থ');$('report').innerHTML='';(d.results||[]).forEach(x=>{const line=document.createElement('div');line.className='reportLine';line.textContent=(x.success?'সফল — ':'ব্যর্থ — ')+x.pageName+(x.error?' — '+x.error:'');$('report').append(line)});$('runState').textContent='শেষ';setStatus('প্রকাশের ফলাফল নিচে দেখুন।')}catch(e){$('report').textContent=e.name==='AbortError'?'STOP করা হয়েছে। সার্ভারে ইতিমধ্যে শুরু হওয়া কাজ শেষ হয়ে থাকতে পারে।':'সমস্যা: '+e.message;$('runState').textContent='বন্ধ';}finally{publishController=null;$('startBtn').disabled=false;$('stopBtn').disabled=true}}
-function stopPublishing(){if(publishController){publishController.abort();$('stopBtn').disabled=true;$('runState').textContent='বন্ধ করা হচ্ছে'}}
-async function splitClips(){const file=$('clipFile').files[0];if(!file){alert('ক্লিপ তৈরির ভিডিও নির্বাচন করুন।');return}$('splitBtn').disabled=true;$('clipStatus').textContent='ভিডিও প্রসেস হচ্ছে। ফাইলের আকার অনুযায়ী সময় লাগতে পারে...';$('clips').innerHTML='';$('clipActions').classList.add('hidden');const form=new FormData();form.append('video',file);try{const r=await fetch(API+'/api/clips/split',{method:'POST',body:form});const d=await r.json();if(!r.ok)throw Error(d.message);clipJobId=d.jobId;clipList=d.clips||[];renderClips();$('clipStatus').textContent=clipList.length+'টি ক্লিপ তৈরি হয়েছে।'}catch(e){$('clipStatus').textContent='ক্লিপ তৈরি হয়নি: '+e.message}finally{$('splitBtn').disabled=false}}
-function renderClips(){$('clips').innerHTML='';clipList.forEach(c=>{const div=document.createElement('div');div.className='clip';const label=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.className='clipCheck';cb.value=c.filename;const span=document.createElement('span');span.textContent='ক্লিপ '+c.number+' — '+c.seconds+' সেকেন্ড';label.append(cb,span);const a=document.createElement('a');a.href=API+'/api/clips/'+clipJobId+'/'+c.filename;a.download=c.filename;a.textContent='আলাদা ডাউনলোড';div.append(label,a);$('clips').append(div)});$('clipActions').classList.toggle('hidden',!clipList.length)}function selectClips(v){document.querySelectorAll('.clipCheck').forEach(x=>x.checked=v)}function downloadSelectedClips(){const chosen=[...document.querySelectorAll('.clipCheck:checked')];if(!chosen.length){alert('ডাউনলোডের জন্য ক্লিপ সিলেক্ট করুন।');return}chosen.forEach((cb,i)=>setTimeout(()=>{const a=document.createElement('a');a.href=API+'/api/clips/'+clipJobId+'/'+cb.value;a.download=cb.value;document.body.append(a);a.click();a.remove()},i*350))}
-renderDraft();renderSavedGeo();loadCountries();redeemTicket().then(checkBackend);
-</script></body></html>
+
+async function syncPages(){
+  try{
+    const response=await apiFetch("/api/pages");
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error||"Page Sync ব্যর্থ");
+
+    const pages=Array.isArray(data)?data:(data.pages||[]);
+    $("page").replaceChildren(new Option("Page নির্বাচন করুন",""));
+
+    pages.forEach(p=>{
+      const id=p.id||p.page_id;
+      const option=new Option(p.name||id,id);
+      $("page").append(option);
+    });
+
+    status("backendStatus",pages.length+"টি Page পাওয়া গেছে।","ok");
+  }catch(error){
+    status("backendStatus","Page Sync ব্যর্থ: "+error.message,"err");
+  }
+}
+
+async function publishVideo(){
+  if(!selected.size){
+    status("publishStatus","প্রথমে Geo Targeting নির্বাচন করুন।","warn");
+    return;
+  }
+
+  if(!$("page").value){
+    status("publishStatus","একটি Facebook Page নির্বাচন করুন।","warn");
+    return;
+  }
+
+  const file=$("video").files[0];
+  if(!file){
+    status("publishStatus","ভিডিও ফাইল নির্বাচন করুন।","warn");
+    return;
+  }
+
+  const form=new FormData();
+  form.append("pageId",$("page").value);
+  form.append("mediaType",$("type").value);
+  form.append("title",$("title").value);
+  form.append("description",$("description").value);
+  form.append("video",file);
+  form.append("scheduleAt",$("schedule").value);
+  form.append("geoTargeting",JSON.stringify(geoPayload()));
+
+  $("publish").disabled=true;
+  status("publishStatus","Backend-এ অনুরোধ পাঠানো হচ্ছে...");
+
+  try{
+    const response=await apiFetch("/api/publish",{
+      method:"POST",
+      body:form
+    });
+
+    const raw=await response.text();
+    let data={};
+    try{data=JSON.parse(raw);}catch(e){}
+
+    if(!response.ok){
+      throw new Error(data.error||raw||"HTTP "+response.status);
+    }
+
+    status("publishStatus","Backend response: "+(data.message||JSON.stringify(data)),"ok");
+  }catch(error){
+    status("publishStatus",
+      "প্রকাশনার অনুরোধ ব্যর্থ: "+error.message+
+      "\nBackend-এ /api/publish endpoint এবং Meta targeting না থাকলে HTML একা Facebook-এ লোকেশন সীমাবদ্ধ করতে পারবে না।",
+      "err");
+  }finally{
+    $("publish").disabled=false;
+  }
+}
+
+/* Tabs */
+document.querySelectorAll("[data-tab]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    document.querySelectorAll("[data-tab]").forEach(b=>
+      b.classList.toggle("active",b===button)
+    );
+
+    ["geo","publish","backend"].forEach(tab=>{
+      $("tab-"+tab).classList.toggle("hidden",tab!==button.dataset.tab);
+    });
+  });
+});
+
+/* Geo controls */
+$("search").addEventListener("input",renderCountries);
+$("clearSearch").addEventListener("click",()=>{
+  $("search").value="";
+  renderCountries();
+});
+$("refresh").addEventListener("click",loadLocations);
+
+$("selectVisible").addEventListener("click",()=>{
+  const query=$("search").value.trim().toLowerCase();
+
+  countryData.filter(c=>
+    (c.name+" "+c.code+" "+c.native).toLowerCase().includes(query)
+  ).forEach(c=>{
+    for(const [key,value] of selected){
+      if(value.countryCode===c.code)selected.delete(key);
+    }
+
+    const key=selectedCountryKey(c.code);
+    selected.set(key,{
+      key,countryCode:c.code,countryName:c.name,
+      regionCode:null,regionName:"পুরো দেশ",scope:"country"
+    });
+  });
+
+  persistSelected();
+  renderCountries();
+  renderSummary();
+});
+
+$("clearAll").addEventListener("click",()=>{
+  selected.clear();
+  persistSelected();
+  renderCountries();
+  renderSummary();
+  status("geoStatus","সব নির্বাচন বাতিল করা হয়েছে।","ok");
+});
+
+$("saveGroup").addEventListener("click",saveGroup);
+$("loadGroup").addEventListener("click",loadGroup);
+$("deleteGroup").addEventListener("click",deleteGroup);
+
+$("exportGroup").addEventListener("click",()=>{
+  const data=JSON.stringify({
+    name:localStorage.getItem("azim_group_name")||"Geo Group",
+    geo:geoPayload()
+  },null,2);
+
+  const blob=new Blob([data],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="azim-geo-group.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* Backend controls */
+$("api").value=localStorage.getItem("azim_api")||
+  "https://azim-automation-api.onrender.com";
+
+$("saveApi").addEventListener("click",()=>{
+  const base=$("api").value.trim().replace(/\/+$/,"");
+  if(!base){
+    status("backendStatus","Backend URL লিখুন।","warn");
+    return;
+  }
+
+  localStorage.setItem("azim_api",base);
+  $("api").value=base;
+  status("backendStatus","Backend URL সংরক্ষিত: "+base,"ok");
+});
+
+$("testApi").addEventListener("click",testBackend);
+$("syncPages").addEventListener("click",syncPages);
+
+$("login").addEventListener("click",()=>{
+  const base=apiBase();
+  if(!base){
+    status("backendStatus","আগে Backend URL সংরক্ষণ করুন।","warn");
+    return;
+  }
+  location.href=base+"/auth/facebook";
+});
+
+/* Publishing */
+$("video").addEventListener("change",()=>{
+  const file=$("video").files[0];
+  $("fileInfo").textContent=file
+    ?file.name+" · "+(file.size/1024/1024).toFixed(2)+" MB"
+    :"কোনো ভিডিও নির্বাচন করা হয়নি।";
+});
+
+$("publish").addEventListener("click",publishVideo);
+
+$("start").addEventListener("click",()=>{
+  status("publishStatus",
+    "START চাপা হয়েছে। স্বয়ংক্রিয় প্রকাশের জন্য Backend scheduler প্রয়োজন।",
+    "warn");
+});
+
+$("stop").addEventListener("click",()=>{
+  status("publishStatus",
+    "STOP চাপা হয়েছে। চলমান Backend job থামাতে Backend stop endpoint প্রয়োজন।",
+    "warn");
+});
+
+/* Start */
+loadSelected();
+renderSummary();
+loadLocations();
+</script>
+</body>
+</html>
