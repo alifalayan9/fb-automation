@@ -5,19 +5,16 @@ const crypto = require("crypto");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const {
-  Country,
-  State
-} = require("country-state-city");
+const { Country, State } = require("country-state-city");
+const ffmpegPath = require("ffmpeg-static");
+const { spawn } = require("child_process");
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION || "v26.0";
 
 const FRONTEND_ORIGIN =
-  process.env.FRONTEND_ORIGIN ||
-  "https://alifalayan9.github.io";
+  process.env.FRONTEND_ORIGIN || "https://alifalayan9.github.io";
 
 const FRONTEND_URL =
   process.env.FRONTEND_URL ||
@@ -38,12 +35,11 @@ app.use(cors({
 
 app.use(express.json({ limit: "2mb" }));
 
-const loginStates = new Map();
-const sessions = new Map();
-
 const uploadDir = "/tmp/azim-uploads";
+const clipDir = "/tmp/azim-clips";
 
 fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(clipDir, { recursive: true });
 
 const upload = multer({
   dest: uploadDir,
@@ -52,6 +48,18 @@ const upload = multer({
     files: 1
   }
 });
+
+const clipUpload = multer({
+  dest: uploadDir,
+  limits: {
+    fileSize: 500 * 1024 * 1024,
+    files: 1
+  }
+});
+
+const loginStates = new Map();
+const sessions = new Map();
+const clipJobs = new Map();
 
 function graphUrl(endpoint) {
   return `https://graph.facebook.com/${GRAPH_VERSION}/${endpoint}`;
@@ -79,17 +87,50 @@ function getSession(req, res, next) {
 async function graphError(response) {
   const data = await response.json().catch(() => ({}));
 
-  throw new Error(
-    data?.error?.message ||
-    `Meta API error (${response.status})`
+  const error = new Error(
+    data?.error?.message || `Meta API error (${response.status})`
   );
+
+  error.status = response.status;
+  throw error;
 }
 
+function runFFmpeg(args) {
+  return new Promise((resolve, reject) => {
+    if (!ffmpegPath) {
+      return reject(new Error("FFmpeg is not available on this server."));
+    }
+
+    const child = spawn(ffmpegPath, args);
+    let errorText = "";
+
+    child.stderr.on("data", data => {
+      errorText += data.toString();
+      if (errorText.length > 12000) {
+        errorText = errorText.slice(-12000);
+      }
+    });
+
+    child.on("error", reject);
+
+    child.on("close", code => {
+      if (code === 0) {
+        resolve(errorText);
+      } else {
+        reject(new Error(
+          errorText.slice(-700) || "ভিডিও প্রসেস করা যায়নি।"
+        ));
+      }
+    });
+  });
+}
+
+// Basic status
 app.get("/", (req, res) => {
   res.json({
     app: "AZIM AUTOMATION",
-    version: "3.0.0",
-    status: "Backend Running"
+    status: "Backend Running",
+    version: "4.0.0"
   });
 });
 
@@ -100,65 +141,196 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// COUNTRY LIST
+// Countries
 app.get("/api/countries", (req, res) => {
-  try {
-    const countries = Country.getAllCountries()
-      .map(country => ({
-        name: country.name,
-        isoCode: country.isoCode
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+  const countries = Country.getAllCountries()
+    .map(country => ({
+      code: country.isoCode,
+      name: country.name
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-    res.json({
-      success: true,
-      countries
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Country list unavailable."
-    });
-  }
+  res.json({
+    success: true,
+    countries
+  });
 });
 
-// STATE / DIVISION / PROVINCE LIST
+// Country regions
 app.get("/api/regions/:countryCode", (req, res) => {
-  try {
-    const code = String(req.params.countryCode || "")
-      .toUpperCase();
+  const code = String(req.params.countryCode || "").toUpperCase();
 
-    if (!/^[A-Z]{2}$/.test(code)) {
+  const country = Country.getCountryByCode(code);
+
+  if (!country) {
+    return res.status(404).json({
+      success: false,
+      message: "Country not found"
+    });
+  }
+
+  const regions = State.getStatesOfCountry(code)
+    .map(region => ({
+      code: region.isoCode,
+      name: region.name
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  res.json({
+    success: true,
+    country: {
+      code: country.isoCode,
+      name: country.name
+    },
+    regions
+  });
+});
+
+// Video clip editor: maximum 30 clips, each up to 30 seconds.
+app.post(
+  "/api/clips/split",
+  clipUpload.single("video"),
+  async (req, res) => {
+    const file = req.file;
+
+    if (!file) {
       return res.status(400).json({
         success: false,
-        message: "Invalid country code."
+        message: "ভিডিও নির্বাচন করুন।"
       });
     }
 
-    const regions = State.getStatesOfCountry(code)
-      .map(state => ({
-        name: state.name,
-        code: state.isoCode,
-        countryCode: state.countryCode
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const jobId = crypto.randomBytes(16).toString("hex");
+    const jobFolder = path.join(clipDir, jobId);
 
-    res.json({
-      success: true,
-      regions
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Region list unavailable."
-    });
+    try {
+      fs.mkdirSync(jobFolder, { recursive: true });
+
+      const probeText = await runFFmpeg([
+        "-i", file.path,
+        "-t", "0.1",
+        "-f", "null",
+        "-"
+      ]).catch(async error => {
+        // FFmpeg writes video metadata to stderr; a probe may exit non-zero.
+        if (error.message) throw error;
+      });
+
+      // Read duration from FFmpeg metadata.
+      const probe = spawn(ffmpegPath, ["-i", file.path]);
+
+      let metadata = "";
+
+      probe.stderr.on("data", data => {
+        metadata += data.toString();
+      });
+
+      await new Promise(resolve => {
+        probe.on("close", resolve);
+        probe.on("error", resolve);
+      });
+
+      const match = metadata.match(
+        /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/
+      );
+
+      if (!match) {
+        throw new Error("ভিডিওর দৈর্ঘ্য নির্ধারণ করা যায়নি।");
+      }
+
+      const duration =
+        Number(match[1]) * 3600 +
+        Number(match[2]) * 60 +
+        Number(match[3]);
+
+      if (!Number.isFinite(duration) || duration <= 0) {
+        throw new Error("ভিডিওটি সঠিক নয়।");
+      }
+
+      const count = Math.min(30, Math.ceil(duration / 30));
+      const clips = [];
+
+      for (let i = 0; i < count; i++) {
+        const start = i * 30;
+        const length = Math.min(30, duration - start);
+
+        const filename =
+          `clip-${String(i + 1).padStart(2, "0")}.mp4`;
+
+        const output = path.join(jobFolder, filename);
+
+        await runFFmpeg([
+          "-ss", String(start),
+          "-i", file.path,
+          "-t", String(length),
+          "-c:v", "libx264",
+          "-preset", "veryfast",
+          "-crf", "23",
+          "-c:a", "aac",
+          "-movflags", "+faststart",
+          "-y", output
+        ]);
+
+        clips.push({
+          number: i + 1,
+          seconds: Math.round(length * 100) / 100,
+          filename
+        });
+      }
+
+      clipJobs.set(jobId, {
+        folder: jobFolder,
+        clips,
+        createdAt: Date.now()
+      });
+
+      res.json({
+        success: true,
+        jobId,
+        clips,
+        totalClips: clips.length,
+        truncated: duration > 900
+      });
+
+    } catch (error) {
+      await fs.promises.rm(jobFolder, {
+        recursive: true,
+        force: true
+      }).catch(() => {});
+
+      res.status(500).json({
+        success: false,
+        message: error.message || "ক্লিপ তৈরি করা যায়নি।"
+      });
+
+    } finally {
+      await fs.promises.unlink(file.path).catch(() => {});
+    }
   }
+);
+
+// Download an individual clip
+app.get("/api/clips/:jobId/:filename", (req, res) => {
+  const job = clipJobs.get(req.params.jobId);
+  const filename = req.params.filename;
+
+  if (
+    !job ||
+    !/^clip-\d{2}\.mp4$/.test(filename) ||
+    !job.clips.some(clip => clip.filename === filename)
+  ) {
+    return res.status(404).send("Clip not found");
+  }
+
+  res.download(path.join(job.folder, filename));
 });
 
-// FACEBOOK LOGIN
+// Facebook login
 app.get("/auth/facebook", (req, res) => {
   if (!APP_ID || !APP_SECRET || !REDIRECT_URI || !CONFIG_ID) {
-    return res.status(500).send("Meta configuration missing.");
+    return res.status(500).send(
+      "Meta configuration missing. Check Render environment variables."
+    );
   }
 
   const state = crypto.randomBytes(24).toString("hex");
@@ -178,13 +350,15 @@ app.get("/auth/facebook", (req, res) => {
   );
 });
 
-// FACEBOOK CALLBACK
+// Facebook callback
 app.get("/auth/facebook/callback", async (req, res) => {
   try {
     const { code, state, error } = req.query;
 
     if (error) {
-      return res.status(400).send("Facebook Login cancelled.");
+      return res.status(400).send(
+        "Facebook Login was cancelled or denied."
+      );
     }
 
     const created = loginStates.get(state);
@@ -195,7 +369,9 @@ app.get("/auth/facebook/callback", async (req, res) => {
       !created ||
       Date.now() - created > 10 * 60 * 1000
     ) {
-      return res.status(400).send("Invalid login state.");
+      return res.status(400).send(
+        "Login state invalid or expired. Connect again."
+      );
     }
 
     loginStates.delete(state);
@@ -258,20 +434,21 @@ app.get("/auth/facebook/callback", async (req, res) => {
     console.error("Facebook callback:", error.message);
 
     res.status(400).send(
-      "Facebook connection failed: " + error.message
+      `Facebook connection failed: ${error.message}`
     );
   }
 });
 
-// REDEEM SESSION
+// Redeem login session
 app.post("/api/session/redeem", (req, res) => {
   const ticket = String(req.body?.ticket || "");
+
   const session = sessions.get(ticket);
 
   if (!session) {
     return res.status(401).json({
       success: false,
-      message: "Login ticket invalid."
+      message: "Login ticket invalid or expired."
     });
   }
 
@@ -281,7 +458,7 @@ app.post("/api/session/redeem", (req, res) => {
   });
 });
 
-// GET PAGES
+// Connected pages
 app.get("/api/pages", getSession, (req, res) => {
   res.json({
     success: true,
@@ -293,7 +470,7 @@ app.get("/api/pages", getSession, (req, res) => {
   });
 });
 
-// PUBLISH
+// Publish video to selected Facebook Pages
 app.post(
   "/api/publish",
   getSession,
@@ -301,22 +478,20 @@ app.post(
   async (req, res) => {
     const file = req.file;
 
-    try {
-      if (!file) {
-        return res.status(400).json({
-          success: false,
-          message: "Choose a video file."
-        });
-      }
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: "ভিডিও নির্বাচন করুন।"
+      });
+    }
 
+    try {
       const {
         pageIds,
         type,
         title = "",
         description = "",
-        scheduleAt = "",
-        excludedCountries = "",
-        excludedRegions = ""
+        scheduleAt = ""
       } = req.body;
 
       let ids;
@@ -327,7 +502,7 @@ app.post(
         ids = [];
       }
 
-      if (!Array.isArray(ids) || !ids.length) {
+      if (!Array.isArray(ids) || ids.length === 0) {
         return res.status(400).json({
           success: false,
           message: "Select at least one Page."
@@ -348,7 +523,7 @@ app.post(
       if (selected.length !== ids.length) {
         return res.status(400).json({
           success: false,
-          message: "Invalid selected Page."
+          message: "One or more selected Pages are not connected."
         });
       }
 
@@ -366,11 +541,10 @@ app.post(
       ) {
         return res.status(400).json({
           success: false,
-          message: "Schedule must be 10 minutes to 6 months ahead."
+          message: "Scheduled time must be 10 minutes to 6 months in the future."
         });
       }
 
-      // Read file once. Large uploads may require more server memory.
       const buffer = await fs.promises.readFile(file.path);
       const results = [];
 
@@ -380,7 +554,9 @@ app.post(
             !page.tasks.includes("CREATE_CONTENT") &&
             !page.tasks.includes("MANAGE")
           ) {
-            throw new Error("Page publishing permission missing.");
+            throw new Error(
+              "This account does not have publishing access for this Page."
+            );
           }
 
           let result;
@@ -409,10 +585,6 @@ app.post(
             } else {
               form.append("published", "true");
             }
-
-            // Do not send unverified region names or IDs.
-            // Audience restriction requires Meta-supported
-            // targeting IDs and endpoint-specific validation.
 
             const response = await fetch(
               graphUrl(`${page.id}/videos`),
@@ -450,7 +622,9 @@ app.post(
             const start = await startResponse.json();
 
             if (!start.video_id || !start.upload_url) {
-              throw new Error("Reel upload session unavailable.");
+              throw new Error(
+                "Meta did not return a Reel upload session."
+              );
             }
 
             const uploadResponse = await fetch(start.upload_url, {
@@ -477,11 +651,14 @@ app.post(
               start.video_id
             );
 
-            finishUrl.searchParams.set("upload_phase", "finish");
+            finishUrl.searchParams.set(
+              "upload_phase",
+              "finish"
+            );
 
             finishUrl.searchParams.set(
               "video_state",
-              schedule ? "SCHEDULED" : "PUBLISHED"
+              "PUBLISHED"
             );
 
             finishUrl.searchParams.set(
@@ -497,13 +674,6 @@ app.post(
               finishUrl.searchParams.set(
                 "description",
                 description
-              );
-            }
-
-            if (schedule) {
-              finishUrl.searchParams.set(
-                "scheduled_publish_time",
-                String(schedule)
               );
             }
 
@@ -543,7 +713,7 @@ app.post(
     } catch (error) {
       console.error("Publish error:", error.message);
 
-      res.status(500).json({
+      res.status(error.status || 500).json({
         success: false,
         message: error.message
       });
@@ -556,21 +726,20 @@ app.post(
   }
 );
 
-// ERROR HANDLER
-app.use((err, req, res, next) => {
-  console.error(err.message);
+// Error handler
+app.use((error, req, res, next) => {
+  console.error(error.message);
 
-  res.status(
-    err.code === "LIMIT_FILE_SIZE" ? 413 : 500
-  ).json({
+  const tooLarge = error.code === "LIMIT_FILE_SIZE";
+
+  res.status(tooLarge ? 413 : 500).json({
     success: false,
-    message:
-      err.code === "LIMIT_FILE_SIZE"
-        ? "Video is larger than 500 MB."
-        : "Server error."
+    message: tooLarge
+      ? "ভিডিও 500 MB-এর বেশি হতে পারবে না।"
+      : "Server error."
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`AZIM API running on port ${PORT}`);
+  console.log(`AZIM AUTOMATION API running on port ${PORT}`);
 });
