@@ -3,137 +3,653 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AZIM AUTOMATION</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#eef2f8;color:#202536}
-.header{background:white;padding:20px;font-size:24px;font-weight:bold;color:#1877f2}
-.container{padding:16px;max-width:900px;margin:auto}
-.card{background:white;padding:18px;border-radius:16px;margin:14px 0;box-shadow:0 3px 12px #0001}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:#e5f1ff;padding:16px;border-radius:12px;text-align:center}
-.number{font-size:26px;font-weight:bold;margin-top:8px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{border:0;border-radius:10px;padding:14px;background:#1877f2;color:white;font-weight:bold;cursor:pointer}
-.secondary{background:#edf3ff;color:#174b91}
-input{width:100%;padding:13px;margin:10px 0;border:1px solid #ccd5e2;border-radius:10px}
-.note{font-size:13px;color:#687386;line-height:1.6}
-.status{background:#fff7df;padding:12px;border-radius:10px;line-height:1.5}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef2f8;
+  color: #202536;
+}
+
+header {
+  background: #ffffff;
+  padding: 18px 20px;
+  color: #1877f2;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+main {
+  max-width: 950px;
+  margin: auto;
+  padding: 15px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 17px;
+  border-radius: 14px;
+  margin: 13px 0;
+  box-shadow: 0 3px 12px #0001;
+}
+
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px 16px;
+  background: #1877f2;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 4px 3px 4px 0;
+}
+
+button.secondary {
+  background: #e8f1ff;
+  color: #174b91;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin: 7px 0 12px;
+  border: 1px solid #ccd5e2;
+  border-radius: 9px;
+  font: inherit;
+}
+
+textarea {
+  min-height: 85px;
+}
+
+.status {
+  padding: 12px;
+  background: #fff7df;
+  border-radius: 9px;
+  white-space: pre-wrap;
+}
+
+.page {
+  padding: 10px;
+  border: 1px solid #e1e5ec;
+  border-radius: 9px;
+  margin: 7px 0;
+}
+
+.page label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page input {
+  width: auto;
+  margin: 0;
+}
+
+.small {
+  font-size: 13px;
+  color: #687386;
+  line-height: 1.5;
+}
+
+.result {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding: 10px;
+  }
+}
 </style>
 </head>
+
 <body>
-<div class="header">AZIM AUTOMATION</div>
-<div class="container">
-<h2>DASHBOARD</h2>
-<p>Facebook Page Management</p>
+
+<header>AZIM AUTOMATION</header>
+
+<main>
+
+<h2>Multi-Page Video Publisher</h2>
 
 <div class="card">
-<b>SYSTEM STATUS</b>
-<p class="status" id="status">Backend এখনো সংযুক্ত হয়নি।</p>
-<button onclick="connectFacebook()">Facebook Login</button>
-<button class="secondary" onclick="syncPages()">Page Sync</button>
-</div>
 
-<div class="card">
-<h3>STATISTICS</h3>
-<div class="stats">
-<div class="stat">Connected Pages<div class="number" id="pages">0</div></div>
-<div class="stat">Videos Selected<div class="number" id="videos">0</div></div>
-<div class="stat">Published<div class="number">0</div></div>
-<div class="stat">Failed<div class="number">0</div></div>
-</div>
-</div>
+<h3>Facebook Connection</h3>
 
-<div class="card">
-<h3>QUICK NAVIGATION</h3>
-<div class="actions">
-<button class="secondary" onclick="show('pages')">Page Manager</button>
-<button class="secondary" onclick="show('upload')">Video Upload</button>
-<button class="secondary" onclick="show('schedule')">Auto Schedule</button>
-<button class="secondary" onclick="show('settings')">Settings</button>
-</div>
-</div>
+<p id="status" class="status">
+Backend connection checking...
+</p>
 
-<div class="card" id="workspace">
-<h3>WELCOME</h3>
-<p>AZIM AUTOMATION Dashboard প্রস্তুত।</p>
+<button onclick="connectFacebook()">
+Connect Facebook
+</button>
+
+<button class="secondary" onclick="syncPages()">
+Sync Pages
+</button>
+
 </div>
 
 <div class="card">
-<h3>SECURITY NOTICE</h3>
-<p class="note">Access Token এবং App Secret কখনো এই HTML ফাইলে রাখবেন না। নিরাপদ Backend প্রয়োজন।</p>
+
+<h3>1. Select Facebook Pages</h3>
+
+<button class="secondary" onclick="selectAll(true)">
+Select All
+</button>
+
+<button class="secondary" onclick="selectAll(false)">
+Clear
+</button>
+
+<div id="pages">
+Connect Facebook, then Sync Pages.
 </div>
+
+<p id="pageCount" class="small">
+0 Pages selected
+</p>
+
 </div>
+
+<div class="card">
+
+<h3>2. Video Details</h3>
+
+<label>Video File</label>
+
+<input
+  id="videoFile"
+  type="file"
+  accept="video/*"
+>
+
+<label>Publish Type</label>
+
+<select id="type">
+  <option value="video">Normal Page Video</option>
+  <option value="reel">Facebook Reel</option>
+</select>
+
+<label>Video Title</label>
+
+<input
+  id="title"
+  maxlength="255"
+  placeholder="Write video title"
+>
+
+<label>Description / Caption</label>
+
+<textarea
+  id="description"
+  placeholder="Write video description or caption"
+></textarea>
+
+<label>Schedule (Optional)</label>
+
+<input
+  id="schedule"
+  type="datetime-local"
+>
+
+<p class="small">
+Leave schedule empty to publish now.
+Scheduled time must be at least 10 minutes ahead.
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>3. Country and Region Block</h3>
+
+<label>Excluded Countries (ISO Codes)</label>
+
+<input
+  id="countries"
+  placeholder="Example: US,CA,GB"
+>
+
+<label>Excluded Region IDs</label>
+
+<input
+  id="regions"
+  placeholder="Enter Meta region IDs"
+>
+
+<p class="small">
+Country and region restrictions depend on Meta API support.
+District names cannot be used directly; Meta-supported
+region IDs are required.
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>4. Publish Video</h3>
+
+<button
+  id="publishBtn"
+  onclick="publishVideos()"
+>
+Publish to Selected Pages
+</button>
+
+<p class="small">
+Keep this page open while videos are uploading.
+Maximum upload size: 500 MB.
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>Publishing Report</h3>
+
+<div id="report">
+No publishing attempt yet.
+</div>
+
+</div>
+
+</main>
 
 <script>
-// Backend তৈরি ও deploy হলে এখানে তার HTTPS URL বসাতে হবে।
-const API_BASE_URL = "https://azim-automation-api.onrender.com";
-  async function checkBackend(){
-  const status = document.getElementById("status");
-  status.textContent = "Backend সংযোগ পরীক্ষা হচ্ছে...";
+
+const API =
+"https://azim-automation-api.onrender.com";
+
+let sessionToken =
+sessionStorage.getItem("azimSession") || "";
+
+let pageData = [];
+
+const statusEl =
+document.getElementById("status");
+
+function setStatus(message) {
+  statusEl.textContent = message;
+}
+
+async function api(path, options = {}) {
+
+  options.headers = {
+    ...(options.headers || {}),
+    ...(sessionToken
+      ? { Authorization: "Bearer " + sessionToken }
+      : {})
+  };
+
+  return fetch(API + path, options);
+}
+
+async function checkBackend() {
 
   try {
-    const response = await fetch(API_BASE_URL + "/api/health");
-    if (!response.ok) throw new Error("Connection failed");
+
+    const response =
+      await fetch(API + "/api/health");
 
     const data = await response.json();
 
-    if (data.success) {
-      status.textContent = "Backend Connected Successfully!";
-    } else {
-      throw new Error("Backend error");
-    }
+    setStatus(
+      data.success
+        ? "Backend connected. " +
+          (sessionToken
+            ? "Facebook session saved."
+            : "Connect Facebook to continue.")
+        : "Backend error."
+    );
+
   } catch (error) {
-    status.textContent = "Backend সংযোগ হয়নি। আবার চেষ্টা করুন।";
+
+    setStatus("Backend connection failed.");
+
   }
 }
 
-checkBackend();
+function connectFacebook() {
 
-function connectFacebook(){
-if(!API_BASE_URL){
-document.getElementById("status").textContent="Backend URL এখনো সেট করা হয়নি।";
-return;
-}
-location.href=API_BASE_URL+"/auth/facebook";
+  location.href = API + "/auth/facebook";
+
 }
 
-async function syncPages(){
-if(!API_BASE_URL){
-document.getElementById("status").textContent="Page Sync চালাতে Backend প্রয়োজন।";
-return;
-}
-try{
-const r=await fetch(API_BASE_URL+"/api/pages",{credentials:"include"});
-if(!r.ok)throw new Error("Sync failed");
-const data=await r.json();
-document.getElementById("pages").textContent=data.pages.length;
-document.getElementById("status").textContent="Page Sync সফল হয়েছে।";
-}catch(e){
-document.getElementById("status").textContent="Page Sync হয়নি।";
-}
+async function redeemTicket() {
+
+  const match =
+    location.hash.match(/connected=([a-f0-9]+)/i);
+
+  if (!match) return;
+
+  const ticket = match[1];
+
+  history.replaceState(
+    null,
+    "",
+    location.pathname + location.search
+  );
+
+  try {
+
+    const response = await fetch(
+      API + "/api/session/redeem",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ticket })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    sessionToken = data.sessionToken;
+
+    sessionStorage.setItem(
+      "azimSession",
+      sessionToken
+    );
+
+    setStatus(
+      "Facebook connected. Now tap Sync Pages."
+    );
+
+  } catch (error) {
+
+    setStatus(
+      "Facebook session error: " + error.message
+    );
+
+  }
 }
 
-function show(section){
-const box=document.getElementById("workspace");
-if(section==="pages"){
-box.innerHTML="<h3>Page Manager</h3><p>Facebook Login ও Backend সংযুক্ত হলে Page List এখানে দেখা যাবে।</p>";
+function selectedIds() {
+
+  return [
+    ...document.querySelectorAll(
+      ".pageCheck:checked"
+    )
+  ].map(item => item.value);
+
 }
-else if(section==="upload"){
-box.innerHTML='<h3>Video Upload</h3><input type="file" id="files" accept="video/*" multiple><p id="count">কোনো ভিডিও নির্বাচন করা হয়নি</p><p class="note">এখনো Facebook-এ ভিডিও আপলোড হবে না।</p>';
-document.getElementById("files").onchange=function(){
-document.getElementById("count").textContent=this.files.length+"টি ভিডিও নির্বাচন করেছেন";
-document.getElementById("videos").textContent=this.files.length;
-};
+
+function updateCount() {
+
+  document.getElementById("pageCount").textContent =
+    selectedIds().length + " Pages selected";
+
 }
-else if(section==="schedule"){
-box.innerHTML='<h3>Auto Schedule</h3><input type="datetime-local"><p class="note">Scheduler চালাতে Backend প্রয়োজন।</p>';
+
+function selectAll(value) {
+
+  document
+    .querySelectorAll(".pageCheck")
+    .forEach(item => {
+      item.checked = value;
+    });
+
+  updateCount();
+
 }
-else{
-box.innerHTML="<h3>Settings</h3><p>Backend Settings এখানে যুক্ত হবে।</p>";
+
+async function syncPages() {
+
+  if (!sessionToken) {
+
+    setStatus(
+      "Facebook not connected. Tap Connect Facebook first."
+    );
+
+    return;
+
+  }
+
+  setStatus("Loading Pages...");
+
+  try {
+
+    const response = await api("/api/pages");
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    pageData = data.pages || [];
+
+    const box =
+      document.getElementById("pages");
+
+    box.innerHTML = "";
+
+    if (!pageData.length) {
+
+      box.textContent = "No Pages found.";
+
+      return;
+
+    }
+
+    pageData.forEach(page => {
+
+      const div =
+        document.createElement("div");
+
+      div.className = "page";
+
+      const label =
+        document.createElement("label");
+
+      const checkbox =
+        document.createElement("input");
+
+      checkbox.type = "checkbox";
+      checkbox.className = "pageCheck";
+      checkbox.value = page.id;
+
+      checkbox.addEventListener(
+        "change",
+        updateCount
+      );
+
+      const name =
+        document.createElement("span");
+
+      name.textContent =
+        page.name + " — " + page.id;
+
+      label.append(checkbox, name);
+
+      div.append(label);
+
+      box.append(div);
+
+    });
+
+    setStatus(
+      "Page Sync successful: " +
+      pageData.length +
+      " Pages found."
+    );
+
+    updateCount();
+
+  } catch (error) {
+
+    setStatus(
+      "Page Sync failed: " + error.message
+    );
+
+  }
+
 }
+
+async function publishVideos() {
+
+  const file =
+    document.getElementById("videoFile").files[0];
+
+  const ids = selectedIds();
+
+  if (!sessionToken) {
+
+    alert("Connect Facebook first.");
+
+    return;
+
+  }
+
+  if (!file) {
+
+    alert("Please select a video file.");
+
+    return;
+
+  }
+
+  if (!ids.length) {
+
+    alert("Select at least one Page.");
+
+    return;
+
+  }
+
+  const button =
+    document.getElementById("publishBtn");
+
+  button.disabled = true;
+
+  button.textContent = "Uploading...";
+
+  const form = new FormData();
+
+  form.append("video", file);
+
+  form.append(
+    "pageIds",
+    JSON.stringify(ids)
+  );
+
+  form.append(
+    "type",
+    document.getElementById("type").value
+  );
+
+  form.append(
+    "title",
+    document.getElementById("title").value
+  );
+
+  form.append(
+    "description",
+    document.getElementById("description").value
+  );
+
+  form.append(
+    "scheduleAt",
+    document.getElementById("schedule").value
+  );
+
+  form.append(
+    "excludedCountries",
+    document.getElementById("countries").value
+  );
+
+  form.append(
+    "excludedRegions",
+    document.getElementById("regions").value
+  );
+
+  const report =
+    document.getElementById("report");
+
+  report.textContent =
+    "Uploading to " +
+    ids.length +
+    " Pages. Please wait...";
+
+  try {
+
+    const response = await api(
+      "/api/publish",
+      {
+        method: "POST",
+        body: form
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    report.innerHTML = "";
+
+    (data.results || []).forEach(item => {
+
+      const div =
+        document.createElement("div");
+
+      div.className = "result";
+
+      div.textContent =
+        (item.success ? "SUCCESS — " : "FAILED — ") +
+        item.pageName +
+        (item.id ? " (ID: " + item.id + ")" : "") +
+        (item.error ? " — " + item.error : "");
+
+      report.append(div);
+
+    });
+
+    setStatus(
+      "Publishing attempt finished. Check the report."
+    );
+
+  } catch (error) {
+
+    report.textContent =
+      "Error: " + error.message;
+
+    setStatus("Publishing failed.");
+
+  } finally {
+
+    button.disabled = false;
+
+    button.textContent =
+      "Publish to Selected Pages";
+
+  }
+
 }
+
+redeemTicket().then(checkBackend);
+
 </script>
+
 </body>
 </html>
