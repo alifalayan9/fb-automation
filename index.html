@@ -69,6 +69,27 @@ input{width:100%;padding:13px;margin:10px 0;border:1px solid #ccd5e2;border-radi
 <script>
 // Backend তৈরি ও deploy হলে এখানে তার HTTPS URL বসাতে হবে।
 const API_BASE_URL = "https://azim-automation-api.onrender.com";
+  async function checkBackend(){
+  const status = document.getElementById("status");
+  status.textContent = "Backend সংযোগ পরীক্ষা হচ্ছে...";
+
+  try {
+    const response = await fetch(API_BASE_URL + "/api/health");
+    if (!response.ok) throw new Error("Connection failed");
+
+    const data = await response.json();
+
+    if (data.success) {
+      status.textContent = "Backend Connected Successfully!";
+    } else {
+      throw new Error("Backend error");
+    }
+  } catch (error) {
+    status.textContent = "Backend সংযোগ হয়নি। আবার চেষ্টা করুন।";
+  }
+}
+
+checkBackend();
 
 function connectFacebook(){
 if(!API_BASE_URL){
