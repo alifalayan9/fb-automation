@@ -1,61 +1,116 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FB AUTOMATION</title>
+<title>AZIM AUTOMATION</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#eef2f8;color:#202536}.header{background:#fff;padding:20px;font-size:25px;font-weight:bold;color:#1877f2;box-shadow:0 2px 8px #ddd}.container{padding:18px;max-width:850px;margin:auto}.sub{color:#687386;margin-top:8px}.card{background:white;padding:20px;border-radius:18px;margin:15px 0;box-shadow:0 3px 12px #0001}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.stat{background:#e5f1ff;padding:18px;border-radius:15px;text-align:center}.number{font-size:28px;font-weight:bold;margin-top:8px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}button{border:0;border-radius:12px;padding:15px;background:#1877f2;color:white;font-weight:bold;font-size:15px;cursor:pointer}.action{background:#edf3ff;color:#174b91}.upload{width:100%;padding:20px;border:2px dashed #1877f2;border-radius:14px;margin:12px 0}.note{font-size:13px;color:#687386;line-height:1.6}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#eef2f8;color:#202536}
+.header{background:white;padding:20px;font-size:24px;font-weight:bold;color:#1877f2}
+.container{padding:16px;max-width:900px;margin:auto}
+.card{background:white;padding:18px;border-radius:16px;margin:14px 0;box-shadow:0 3px 12px #0001}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#e5f1ff;padding:16px;border-radius:12px;text-align:center}
+.number{font-size:26px;font-weight:bold;margin-top:8px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:10px;padding:14px;background:#1877f2;color:white;font-weight:bold;cursor:pointer}
+.secondary{background:#edf3ff;color:#174b91}
+input{width:100%;padding:13px;margin:10px 0;border:1px solid #ccd5e2;border-radius:10px}
+.note{font-size:13px;color:#687386;line-height:1.6}
+.status{background:#fff7df;padding:12px;border-radius:10px;line-height:1.5}
 </style>
 </head>
 <body>
-<div class="header">FB AUTOMATION</div>
+<div class="header">AZIM AUTOMATION</div>
 <div class="container">
 <h2>DASHBOARD</h2>
-<p class="sub">Personal Facebook Page Management</p>
-<div class="card"><b>🟢 SYSTEM STATUS</b><p>Dashboard Ready</p></div>
+<p>Facebook Page Management</p>
+
 <div class="card">
-<h3>STATISTICS OVERVIEW</h3>
+<b>SYSTEM STATUS</b>
+<p class="status" id="status">Backend এখনো সংযুক্ত হয়নি।</p>
+<button onclick="connectFacebook()">Facebook Login</button>
+<button class="secondary" onclick="syncPages()">Page Sync</button>
+</div>
+
+<div class="card">
+<h3>STATISTICS</h3>
 <div class="stats">
 <div class="stat">Connected Pages<div class="number" id="pages">0</div></div>
 <div class="stat">Videos Selected<div class="number" id="videos">0</div></div>
 <div class="stat">Published<div class="number">0</div></div>
 <div class="stat">Failed<div class="number">0</div></div>
-</div></div>
+</div>
+</div>
+
 <div class="card">
 <h3>QUICK NAVIGATION</h3>
 <div class="actions">
-<button class="action" onclick="show('pages')">📄 Page Manager</button>
-<button class="action" onclick="show('upload')">📤 Bulk Upload</button>
-<button class="action" onclick="show('schedule')">🕒 Auto Upload</button>
-<button class="action" onclick="show('country')">🌍 Country Settings</button>
-<button class="action" onclick="show('token')">🔑 Token Manager</button>
-<button class="action" onclick="show('settings')">⚙️ Settings</button>
-</div></div>
+<button class="secondary" onclick="show('pages')">Page Manager</button>
+<button class="secondary" onclick="show('upload')">Video Upload</button>
+<button class="secondary" onclick="show('schedule')">Auto Schedule</button>
+<button class="secondary" onclick="show('settings')">Settings</button>
+</div>
+</div>
+
 <div class="card" id="workspace">
-<h3>WELCOME</h3><p>আপনার FB Automation Dashboard প্রস্তুত।</p>
+<h3>WELCOME</h3>
+<p>AZIM AUTOMATION Dashboard প্রস্তুত।</p>
 </div>
-<p class="note">Version 1.0 | Personal Project<br>এটি প্রাথমিক UI Demo। Meta API সংযোগ এখনো করা হয়নি।</p>
+
+<div class="card">
+<h3>SECURITY NOTICE</h3>
+<p class="note">Access Token এবং App Secret কখনো এই HTML ফাইলে রাখবেন না। নিরাপদ Backend প্রয়োজন।</p>
 </div>
+</div>
+
 <script>
+// Backend তৈরি ও deploy হলে এখানে তার HTTPS URL বসাতে হবে।
+const API_BASE_URL = "";
+
+function connectFacebook(){
+if(!API_BASE_URL){
+document.getElementById("status").textContent="Backend URL এখনো সেট করা হয়নি।";
+return;
+}
+location.href=API_BASE_URL+"/auth/facebook";
+}
+
+async function syncPages(){
+if(!API_BASE_URL){
+document.getElementById("status").textContent="Page Sync চালাতে Backend প্রয়োজন।";
+return;
+}
+try{
+const r=await fetch(API_BASE_URL+"/api/pages",{credentials:"include"});
+if(!r.ok)throw new Error("Sync failed");
+const data=await r.json();
+document.getElementById("pages").textContent=data.pages.length;
+document.getElementById("status").textContent="Page Sync সফল হয়েছে।";
+}catch(e){
+document.getElementById("status").textContent="Page Sync হয়নি।";
+}
+}
+
 function show(section){
-let titles={pages:"Page Manager",upload:"Bulk Video Upload",schedule:"Auto Upload Scheduler",country:"Country Settings",token:"Token Manager",settings:"Settings"};
-let box=document.getElementById('workspace');
-box.innerHTML='<h3>'+titles[section]+'</h3>';
-if(section==='upload'){
-box.innerHTML+='<input class="upload" type="file" accept="video/*" multiple id="files"><p id="count">কোনো ভিডিও নির্বাচন করা হয়নি</p>';
-document.getElementById('workspace').insertAdjacentHTML('beforeend','<p class="note">এটি শুধু স্থানীয় ফাইল নির্বাচন Demo। এখনো Facebook-এ আপলোড হয় না।</p>');
-document.getElementById('files').onchange=function(){document.getElementById('count').textContent=this.files.length+' টি ভিডিও নির্বাচন করেছেন';document.getElementById('videos').textContent=this.files.length};
-}else if(section==='pages'){
-box.innerHTML+='<p>Meta Login ও অনুমোদিত Page সংযোগ পরবর্তী ধাপে যোগ হবে।</p>';
-}else if(section==='schedule'){
-box.innerHTML+='<label>তারিখ ও সময় নির্বাচন করুন</label><input type="datetime-local" class="upload"><p class="note">Scheduler এখনো সক্রিয় নয়।</p>';
-}else if(section==='country'){
-box.innerHTML+='<p>Country Targeting API অনুমতি অনুযায়ী পরে যুক্ত হবে।</p><select class="upload"><option>USA</option><option>India</option><option>Bangladesh</option></select>';
-}else if(section==='token'){
-box.innerHTML+='<p>নিজের নিরাপদ Token Management পরবর্তী ধাপে তৈরি হবে। এখানে কোনো Token Paste করবেন না।</p>';
-}else{
-box.innerHTML+='<p>App settings will be added here.</p>';
+const box=document.getElementById("workspace");
+if(section==="pages"){
+box.innerHTML="<h3>Page Manager</h3><p>Facebook Login ও Backend সংযুক্ত হলে Page List এখানে দেখা যাবে।</p>";
+}
+else if(section==="upload"){
+box.innerHTML='<h3>Video Upload</h3><input type="file" id="files" accept="video/*" multiple><p id="count">কোনো ভিডিও নির্বাচন করা হয়নি</p><p class="note">এখনো Facebook-এ ভিডিও আপলোড হবে না।</p>';
+document.getElementById("files").onchange=function(){
+document.getElementById("count").textContent=this.files.length+"টি ভিডিও নির্বাচন করেছেন";
+document.getElementById("videos").textContent=this.files.length;
+};
+}
+else if(section==="schedule"){
+box.innerHTML='<h3>Auto Schedule</h3><input type="datetime-local"><p class="note">Scheduler চালাতে Backend প্রয়োজন।</p>';
+}
+else{
+box.innerHTML="<h3>Settings</h3><p>Backend Settings এখানে যুক্ত হবে।</p>";
 }
 }
 </script>
